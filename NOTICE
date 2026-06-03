@@ -1,0 +1,8 @@
+Auto-MFA
+Copyright 2026 Wang Zhiyan
+
+This product is licensed under the Apache License, Version 2.0.
+
+This repository does not vendor third-party source code. It invokes external
+tools through command-line interfaces and includes project documentation about
+those tools in THIRD_PARTY_NOTICES.md.

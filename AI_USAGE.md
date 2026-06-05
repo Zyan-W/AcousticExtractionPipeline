@@ -7,6 +7,7 @@ AI assistance was used for:
 
 - reviewing the original notebook workflow,
 - drafting and refactoring the local GUI and pipeline modules,
+- drafting the first-run environment guide and isolated-environment setup docs,
 - writing tests and documentation,
 - preparing license and third-party-notice documentation.
 

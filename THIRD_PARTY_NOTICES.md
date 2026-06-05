@@ -8,6 +8,8 @@ does not vendor or copy third-party source code.
 | Name | Purpose | Version | License | Use |
 | --- | --- | --- | --- | --- |
 | Python standard library, including `tkinter` | Runtime, GUI, filesystem, subprocess, JSON, tests | Python 3.10+ expected; user-installed | PSF License Agreement | Imported directly by `auto_mfa_tool/` and tests |
+| Miniforge / mamba | Isolated environment creation and dependency management | User-installed; not pinned or bundled | BSD-3-Clause | Checked and invoked by the environment guide; not bundled |
+| pip | Installs `openai-whisper` inside the isolated environment | Installed by `environment.yml`; package version resolved by conda-forge | MIT License | Invoked by mamba during environment creation; not bundled |
 
 ## External Runtime Tools
 
@@ -16,9 +18,9 @@ repository.
 
 | Name | Purpose | Version | License | Use |
 | --- | --- | --- | --- | --- |
-| OpenAI Whisper / `openai-whisper` | Speech recognition and timestamped JSON generation | User-installed; not pinned or bundled | MIT License | Called via `whisper` CLI |
-| FFmpeg | Audio decoding support used by Whisper | User-installed; not pinned or bundled | LGPL v2.1 or later by default; GPL v2 or later if built with GPL components | Called as external executable; do not redistribute a GPL-enabled build with this Apache-2.0 project without explicit approval |
-| Montreal Forced Aligner | Forced alignment | User-installed; not pinned or bundled | MIT License | Called via `mfa` CLI |
+| OpenAI Whisper / `openai-whisper` | Speech recognition and timestamped JSON generation | Installed into `auto-mfa` by `environment.yml`; not bundled | MIT License | Called via `whisper` CLI |
+| FFmpeg | Audio decoding support used by Whisper | Installed into `auto-mfa` by `environment.yml`; not bundled | LGPL v2.1 or later by default; GPL v2 or later if built with GPL components | Called as external executable; do not redistribute a GPL-enabled build with this Apache-2.0 project without explicit approval |
+| Montreal Forced Aligner | Forced alignment | Installed into `auto-mfa` by `environment.yml`; not bundled | MIT License | Called via `mfa` CLI |
 | MFA pretrained models, including `japanese_mfa` defaults | Acoustic and dictionary models for alignment | User-downloaded; model version chosen by user | CC BY 4.0 | Downloaded by user through MFA model commands; not bundled |
 
 ## Notebook-Only Dependencies

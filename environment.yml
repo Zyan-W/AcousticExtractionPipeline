@@ -1,0 +1,10 @@
+name: auto-mfa
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - ffmpeg
+  - montreal-forced-aligner
+  - pip
+  - pip:
+      - openai-whisper

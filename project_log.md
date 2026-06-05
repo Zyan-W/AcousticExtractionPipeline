@@ -36,8 +36,10 @@ This repository contains a Colab-first notebook for automatic phonetic annotatio
 - The notebook is designed as an interactive Colab recipe and is retained as historical reference.
 - The notebook outputs have been cleared before Apache-2.0 release preparation to avoid publishing Colab-generated frontend snippets, install logs, or transient runtime output.
 - A first local GUI implementation now lives in `auto_mfa_tool/`.
-- The local tool uses Tkinter and can be launched with `python -m auto_mfa_tool`.
-- The local tool assumes `whisper`, `ffmpeg`, and `mfa` are already installed and available on PATH.
+- The default `python -m auto_mfa_tool` entrypoint now opens a Tkinter environment guide.
+- The main annotation GUI can be launched directly with `python -m auto_mfa_tool --app`.
+- `environment.yml` defines an isolated `auto-mfa` mamba environment for `python=3.11`, `ffmpeg`, `montreal-forced-aligner`, and `openai-whisper`.
+- The main tool assumes `whisper`, `ffmpeg`, and `mfa` are available in the active environment or through `mamba run -n auto-mfa`.
 - Release documentation now includes `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md`, and `AI_USAGE.md`.
 - The conversion function reads Whisper JSON `segments` and creates one interval tier named `sentences`.
 - The MFA command uses the `japanese_mfa` acoustic model and dictionary.

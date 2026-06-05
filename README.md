@@ -6,7 +6,8 @@ This project is released under the Apache License 2.0. See `LICENSE`,
 `NOTICE`, `THIRD_PARTY_NOTICES.md`, and `AI_USAGE.md`.
 
 The original workflow lives in `auto_mfa.ipynb`. The local tool version adds a
-simple Tkinter desktop GUI that runs the same first-pass pipeline:
+Tkinter environment guide and a desktop GUI that runs the same first-pass
+pipeline:
 
 1. transcribe audio with Whisper,
 2. convert Whisper JSON segments into sentence-level Praat TextGrids,
@@ -16,28 +17,21 @@ simple Tkinter desktop GUI that runs the same first-pass pipeline:
 
 ## Requirements
 
-Install these command-line tools before running the GUI, and make sure they are
-available on `PATH`:
+Install Python and Miniforge before first use:
 
-- Python 3.10+
-- `whisper`
-- `ffmpeg`
-- `mfa`
+- Python 3.10+ with `tkinter`
+- Miniforge with `mamba`
 
 For Apache-2.0 release compatibility, this repository does not bundle FFmpeg.
 If you redistribute binaries with this project, use an FFmpeg build that fits
 your redistribution policy; do not bundle a GPL-enabled FFmpeg build without
 explicit approval.
 
-The first version does not install dependencies automatically. If MFA reports a
-missing model, install the Japanese defaults with:
+The environment guide creates an isolated `auto-mfa` conda environment from
+`environment.yml`. It does not install Miniforge itself and does not install
+packages into the global Python environment.
 
-```powershell
-mfa model download acoustic japanese_mfa
-mfa model download dictionary japanese_mfa
-```
-
-## Run The GUI
+## First Run
 
 From the repository root:
 
@@ -45,10 +39,51 @@ From the repository root:
 python -m auto_mfa_tool
 ```
 
-On macOS, the command is usually:
+On macOS, use `python3` if `python` does not point to Python 3:
 
 ```bash
 python3 -m auto_mfa_tool
+```
+
+The environment guide opens first:
+
+1. Click `Check Environment`.
+2. If Miniforge/mamba is found and `auto-mfa` does not exist, click `Create Environment`.
+3. After the isolated environment is ready, click `Launch Tool`.
+
+`Launch Tool` starts the main app with:
+
+```bash
+mamba run -n auto-mfa python -m auto_mfa_tool --app
+```
+
+This keeps `python`, `whisper`, `ffmpeg`, and `mfa` inside the same isolated
+environment.
+
+## Command-Line Alternative
+
+You can also create and use the environment manually:
+
+```bash
+mamba env create -f environment.yml
+mamba activate auto-mfa
+python -m auto_mfa_tool --app
+```
+
+If MFA reports a missing model, install the Japanese defaults inside the
+`auto-mfa` environment:
+
+```bash
+mfa model download acoustic japanese_mfa
+mfa model download dictionary japanese_mfa
+```
+
+## Run The Annotation GUI Directly
+
+After the environment is active, open the main tool directly with:
+
+```bash
+python -m auto_mfa_tool --app
 ```
 
 Choose an audio folder and an output folder, then click `Run`.
@@ -64,9 +99,10 @@ The output folder will contain:
 ## macOS Notes
 
 The tool is not Windows-only. It uses Python standard-library GUI code
-(`tkinter`) and cross-platform path handling. On macOS, make sure the active
-Python installation includes Tk support and that `whisper`, `ffmpeg`, and `mfa`
-are available in the same terminal environment used to start the GUI.
+(`tkinter`) and cross-platform path handling. On macOS, make sure the Python
+used to open the environment guide includes Tk support. The guide can confirm
+that the isolated `auto-mfa` environment contains `whisper`, `ffmpeg`, and
+`mfa`, but it cannot start on a machine with no Python installed.
 
 ## Code Origin And Licenses
 
@@ -87,9 +123,11 @@ repository:
 | Name | Purpose | Version | License |
 | --- | --- | --- | --- |
 | Python standard library, including `tkinter` | Runtime and GUI | Python 3.10+ expected; user-installed | [PSF License Agreement](https://docs.python.org/3/license.html) |
-| OpenAI Whisper / `openai-whisper` | ASR transcription CLI | User-installed; not pinned or bundled | [MIT License](https://github.com/openai/whisper/blob/main/LICENSE) |
-| FFmpeg | Audio decoding support used by Whisper | User-installed; not pinned or bundled | [LGPL v2.1+ by default](https://www.ffmpeg.org/legal.html); GPL v2+ if built with GPL components |
-| Montreal Forced Aligner | Forced alignment CLI | User-installed; not pinned or bundled | [MIT License](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) |
+| Miniforge / mamba | Environment management and isolated dependency creation | User-installed; not pinned or bundled | [BSD-3-Clause](https://github.com/conda-forge/miniforge/blob/main/README.md) / [BSD-3-Clause](https://github.com/mamba-org/mamba) |
+| pip | Installs `openai-whisper` inside the isolated environment | Installed by `environment.yml`; package version resolved by conda-forge | [MIT License](https://github.com/pypa/pip) |
+| OpenAI Whisper / `openai-whisper` | ASR transcription CLI | Installed by `environment.yml`; not pinned or bundled | [MIT License](https://github.com/openai/whisper/blob/main/LICENSE) |
+| FFmpeg | Audio decoding support used by Whisper | Installed by `environment.yml`; not pinned or bundled | [LGPL v2.1+ by default](https://www.ffmpeg.org/legal.html); GPL v2+ if built with GPL components |
+| Montreal Forced Aligner | Forced alignment CLI | Installed by `environment.yml`; not pinned or bundled | [MIT License](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) |
 | MFA pretrained models, including `japanese_mfa` defaults | Acoustic/dictionary models | User-downloaded; not bundled | [CC BY 4.0](https://github.com/MontrealCorpusTools/mfa-models) |
 
 Notebook-only dependencies used by `auto_mfa.ipynb`:

@@ -10,6 +10,8 @@ does not vendor or copy third-party source code.
 | Python standard library, including `tkinter` | Runtime, GUI, filesystem, subprocess, JSON, tests | Python 3.10+ expected; user-installed | PSF License Agreement | Imported directly by `auto_mfa_tool/` and tests |
 | Miniforge / mamba / conda | Isolated environment creation and dependency management | User-installed; not pinned or bundled | BSD-3-Clause | Checked and invoked by the environment guide or startup scripts; not bundled |
 | pip | Installs `openai-whisper` inside the isolated environment | Installed by `environment.yml`; package version resolved by conda-forge | MIT License | Invoked by mamba during environment creation; not bundled |
+| NumPy | Whisper/PyTorch runtime compatibility check | `numpy<2` from `environment.yml`; not bundled | BSD-3-Clause | Imported by a runtime check command to catch incompatible environments before transcription |
+| PyTorch | Whisper runtime backend compatibility check | Installed as an `openai-whisper` dependency; not bundled | BSD-style | Imported by a runtime check command to verify the NumPy bridge used by Whisper |
 
 ## External Runtime Tools
 

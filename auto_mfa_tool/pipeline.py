@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Iterable, Sequence
 
+from .runtime_checks import check_current_environment, environment_is_ready, format_environment_report
+
 
 AUDIO_SUFFIXES = {".wav", ".mp3", ".m4a", ".flac"}
 LogSink = Callable[[str], None]
@@ -60,13 +62,11 @@ def check_environment() -> list[str]:
 
 
 def require_environment() -> None:
-    missing = check_environment()
-    if missing:
-        install_hint = (
-            "Install the missing command-line tools and make sure they are on PATH: "
-            + ", ".join(missing)
-        )
-        raise PipelineError(install_hint)
+    checks = check_current_environment()
+    if environment_is_ready(checks):
+        return
+    message = ["Environment check failed before running Whisper:", *format_environment_report(checks)]
+    raise PipelineError("\n".join(message))
 
 
 def discover_audio_files(audio_dir: Path) -> list[Path]:

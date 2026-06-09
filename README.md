@@ -89,6 +89,9 @@ The environment guide opens first:
 2. If Miniforge/mamba is found and `auto-mfa` does not exist, click `Create Environment`.
 3. After the isolated environment is ready, click `Launch Tool`.
 
+The environment check verifies `whisper`, `ffmpeg`, `mfa`, and the
+NumPy/PyTorch runtime used by Whisper.
+
 `Launch Tool` starts the main app with:
 
 ```bash
@@ -132,6 +135,9 @@ python -m auto_mfa_tool --app
 ```
 
 Choose an audio folder and an output folder, then click `Run`.
+You can click `Check Environment` first to verify the active Python,
+`whisper`, `ffmpeg`, `mfa`, and the NumPy/PyTorch bridge before starting a long
+Whisper job.
 
 Supported audio extensions are `.wav`, `.mp3`, `.m4a`, and `.flac`.
 
@@ -154,6 +160,23 @@ The output folder will contain:
 - `whisper-output/`
 - `mfa-input/`
 - `mfa-output/`
+
+## Troubleshooting
+
+If the log shows `RuntimeError: Numpy is not available`, the active `auto-mfa`
+environment is stale or has an incompatible NumPy/PyTorch combination. Update
+it from the repository root:
+
+```bash
+mamba env update -n auto-mfa -f environment.yml
+```
+
+If that does not fix it, recreate the isolated environment:
+
+```bash
+mamba env remove -n auto-mfa
+mamba env create -f environment.yml
+```
 
 ## macOS Notes
 
@@ -186,6 +209,8 @@ repository:
 | Python standard library, including `tkinter` | Runtime and GUI | Python 3.10+ expected; user-installed | [PSF License Agreement](https://docs.python.org/3/license.html) |
 | Miniforge / mamba / conda | Environment management and isolated dependency creation | User-installed; not pinned or bundled | [BSD-3-Clause](https://github.com/conda-forge/miniforge/blob/main/README.md) / [BSD-3-Clause](https://github.com/mamba-org/mamba) / [BSD-3-Clause](https://docs.conda.io/en/latest/license.html) |
 | pip | Installs `openai-whisper` inside the isolated environment | Installed by `environment.yml`; package version resolved by conda-forge | [MIT License](https://github.com/pypa/pip) |
+| NumPy | Whisper/PyTorch runtime compatibility check and array bridge | `numpy<2` from `environment.yml`; not bundled | [BSD-3-Clause](https://numpy.org/doc/stable/license.html) |
+| PyTorch | Whisper runtime backend and NumPy bridge check | Installed as an `openai-whisper` dependency; not bundled | [BSD-style](https://github.com/pytorch/pytorch/blob/main/LICENSE) |
 | OpenAI Whisper / `openai-whisper` | ASR transcription CLI | Installed by `environment.yml`; not pinned or bundled | [MIT License](https://github.com/openai/whisper/blob/main/LICENSE) |
 | FFmpeg | Audio decoding support used by Whisper | Installed by `environment.yml`; not pinned or bundled | [LGPL v2.1+ by default](https://www.ffmpeg.org/legal.html); GPL v2+ if built with GPL components |
 | Montreal Forced Aligner | Forced alignment CLI | Installed by `environment.yml`; not pinned or bundled | [MIT License](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) |

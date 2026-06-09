@@ -44,8 +44,10 @@ This repository contains a Colab-first notebook for automatic phonetic annotatio
 - The macOS `.command` and `.sh` startup scripts must be tracked with executable file mode so zsh/Finder can run them directly after clone.
 - Startup scripts search common Miniforge/Miniconda locations and can fall back from `mamba` to `conda`, so users do not need to add Miniforge to the global PATH.
 - Startup scripts and the environment guide download the official MFA presets used by the GUI after creating the isolated environment.
-- `environment.yml` defines an isolated `auto-mfa` mamba environment for `python=3.11`, `ffmpeg`, `montreal-forced-aligner`, and `openai-whisper`.
+- `environment.yml` defines an isolated `auto-mfa` mamba environment for `python=3.11`, `numpy<2`, `ffmpeg`, `montreal-forced-aligner`, and `openai-whisper`.
 - The main tool assumes `whisper`, `ffmpeg`, and `mfa` are available in the active environment or through `mamba run -n auto-mfa`.
+- The main GUI includes a `Check Environment` button that verifies the active Python, `whisper`, `ffmpeg`, `mfa`, and the NumPy/PyTorch bridge before a long Whisper run.
+- The pipeline runs the same NumPy/PyTorch preflight before invoking Whisper, so stale macOS environments fail early with a clear environment report instead of a Whisper stack trace such as `RuntimeError: Numpy is not available`.
 - Release documentation now includes `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md`, and `AI_USAGE.md`.
 - The conversion function reads Whisper JSON `segments` and creates one interval tier named `sentences`.
 - The main GUI language preset dropdown includes only MFA official acoustic/dictionary pairs that were confirmed in MFA model documentation: Japanese (`japanese_mfa`/`japanese_mfa`), Korean (`korean_mfa`/`korean_mfa`), English (`english_mfa`/`english_mfa`), and Mandarin Chinese (`mandarin_mfa`/`mandarin_china_mfa`).

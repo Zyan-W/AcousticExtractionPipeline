@@ -16,6 +16,7 @@ from .presets import (
     find_preset,
     preset_labels,
 )
+from .runtime_checks import check_current_environment, environment_is_ready, format_environment_report
 from .window_icon import apply_waveform_icon
 
 
@@ -103,10 +104,13 @@ class AutoMfaApp(tk.Tk):
         )
         dictionary_box.grid(row=4, column=3, sticky="ew", pady=(8, 0))
 
-        self.run_button = ttk.Button(form, text="Run", command=self._start_pipeline)
-        self.run_button.grid(row=5, column=0, sticky="w", pady=(12, 0))
+        self.check_button = ttk.Button(form, text="Check Environment", command=self._start_environment_check)
+        self.check_button.grid(row=5, column=0, sticky="ew", pady=(12, 0))
 
-        ttk.Label(form, textvariable=self.status_text).grid(row=5, column=1, columnspan=3, sticky="w", pady=(12, 0))
+        self.run_button = ttk.Button(form, text="Run", command=self._start_pipeline)
+        self.run_button.grid(row=5, column=1, sticky="w", padx=(8, 0), pady=(12, 0))
+
+        ttk.Label(form, textvariable=self.status_text).grid(row=5, column=2, columnspan=2, sticky="w", pady=(12, 0))
 
         log_frame = ttk.Frame(self, padding=(12, 0, 12, 12))
         log_frame.grid(row=1, column=0, sticky="nsew")
@@ -150,6 +154,18 @@ class AutoMfaApp(tk.Tk):
         self.mfa_dictionary.set(preset.mfa_dictionary)
         self.status_text.set(f"Preset: {preset.label}")
 
+    def _start_environment_check(self) -> None:
+        if self._worker and self._worker.is_alive():
+            return
+
+        self.log_text.delete("1.0", "end")
+        self.status_text.set("Checking environment...")
+        self.run_button.configure(state="disabled")
+        self.check_button.configure(state="disabled")
+
+        self._worker = threading.Thread(target=self._check_environment_worker, daemon=True)
+        self._worker.start()
+
     def _start_pipeline(self) -> None:
         if self._worker and self._worker.is_alive():
             return
@@ -170,9 +186,22 @@ class AutoMfaApp(tk.Tk):
         self.log_text.delete("1.0", "end")
         self.status_text.set("Running...")
         self.run_button.configure(state="disabled")
+        self.check_button.configure(state="disabled")
 
         self._worker = threading.Thread(target=self._run_pipeline_worker, args=(config,), daemon=True)
         self._worker.start()
+
+    def _check_environment_worker(self) -> None:
+        checks = check_current_environment()
+        self._queue_log("Environment check:")
+        for line in format_environment_report(checks):
+            self._queue_log(line)
+        if environment_is_ready(checks):
+            self._log_queue.put("__STATUS_CHECK_OK__")
+        else:
+            self._queue_log("")
+            self._queue_log("Update or recreate the auto-mfa conda environment, then check again.")
+            self._log_queue.put("__STATUS_CHECK_ERROR__")
 
     def _run_pipeline_worker(self, config: PipelineConfig) -> None:
         try:
@@ -198,9 +227,19 @@ class AutoMfaApp(tk.Tk):
                 if message == "__STATUS_DONE__":
                     self.status_text.set("Done")
                     self.run_button.configure(state="normal")
+                    self.check_button.configure(state="normal")
                 elif message == "__STATUS_ERROR__":
                     self.status_text.set("Error")
                     self.run_button.configure(state="normal")
+                    self.check_button.configure(state="normal")
+                elif message == "__STATUS_CHECK_OK__":
+                    self.status_text.set("Environment OK")
+                    self.run_button.configure(state="normal")
+                    self.check_button.configure(state="normal")
+                elif message == "__STATUS_CHECK_ERROR__":
+                    self.status_text.set("Environment needs attention")
+                    self.run_button.configure(state="disabled")
+                    self.check_button.configure(state="normal")
                 else:
                     self.log_text.insert("end", message + "\n")
                     self.log_text.see("end")

@@ -5,6 +5,7 @@ $ErrorActionPreference = "Stop"
 $ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $EnvName = "auto-mfa"
 $EnvFile = Join-Path $ProjectRoot "environment.yml"
+$RuntimeCheckCode = "import numpy as np; import torch; torch.from_numpy(np.zeros(1, dtype=np.float32)); import montreal_forced_aligner; print('runtime ok')"
 $ModelDownloads = @(
     @("acoustic", "japanese_mfa"),
     @("dictionary", "japanese_mfa"),
@@ -113,6 +114,21 @@ function Find-EnvTool {
     $null
 }
 
+function Test-Runtime {
+    & $EnvTool.Command run -n $EnvName python -c $RuntimeCheckCode *> $null
+    if ($LASTEXITCODE -ne 0) {
+        return $false
+    }
+
+    & $EnvTool.Command run -n $EnvName mfa version *> $null
+    return $LASTEXITCODE -eq 0
+}
+
+function Show-RuntimeCheckError {
+    & $EnvTool.Command run -n $EnvName python -c $RuntimeCheckCode
+    & $EnvTool.Command run -n $EnvName mfa version
+}
+
 Set-Location -LiteralPath $ProjectRoot
 
 $EnvTool = Find-EnvTool
@@ -148,6 +164,26 @@ if (-not $envExists) {
 }
 else {
     Write-Step "$EnvName environment already exists"
+}
+
+Write-Step "Checking runtime dependencies"
+if (-not (Test-Runtime)) {
+    Write-Host "The existing $EnvName environment needs to be updated."
+    Write-Host "Updating from environment.yml before launching Auto-MFA..."
+    & $EnvTool.Command env update -n $EnvName -f $EnvFile --prune
+    if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+    }
+
+    Write-Step "Rechecking runtime dependencies"
+    if (-not (Test-Runtime)) {
+        Write-Host "Runtime check still failed after updating the environment."
+        Write-Host "Try recreating the environment manually:"
+        Write-Host "$($EnvTool.Command) env remove -n $EnvName"
+        Write-Host "$($EnvTool.Command) env create -f $EnvFile"
+        Show-RuntimeCheckError
+        exit 1
+    }
 }
 
 Write-Step "Ensuring official MFA models"

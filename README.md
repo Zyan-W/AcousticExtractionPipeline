@@ -65,7 +65,8 @@ bash ./run_auto_mfa_macos.sh
 ```
 
 The scripts switch to the project directory, create the `auto-mfa` environment
-from `environment.yml` if it is missing, download the official MFA model
+from `environment.yml` if it is missing, update an existing stale environment
+when the NumPy/PyTorch/MFA runtime check fails, download the official MFA model
 presets used by the GUI, and launch the annotation GUI.
 They first try to use `mamba`; if Miniforge is installed but `mamba` is not on
 PATH, they search common Miniforge/Miniconda locations and can fall back to
@@ -164,8 +165,9 @@ The output folder will contain:
 ## Troubleshooting
 
 If the log shows `RuntimeError: Numpy is not available`, the active `auto-mfa`
-environment is stale or has an incompatible NumPy/PyTorch combination. Update
-it from the repository root:
+environment is stale or has an incompatible NumPy/PyTorch combination. The
+double-click startup scripts try to update this automatically. You can also
+update it manually from the repository root:
 
 ```bash
 mamba env update -n auto-mfa -f environment.yml

@@ -24,10 +24,13 @@ class StartupScriptTest(unittest.TestCase):
         self.assertIn("miniforge3", script)
         self.assertIn("conda", script)
         self.assertIn("& $EnvTool.Command env create -f $EnvFile", script)
+        self.assertIn("Test-Runtime", script)
+        self.assertIn("& $EnvTool.Command env update -n $EnvName -f $EnvFile --prune", script)
         self.assertIn("Ensuring official MFA models", script)
         self.assertIn("& $EnvTool.Command run -n $EnvName mfa model download $model[0] $model[1]", script)
         self.assertIn("& $EnvTool.Command run -n $EnvName python -m auto_mfa_tool --app", script)
         self.assertIn("Set-Location -LiteralPath $ProjectRoot", script)
+        self.assertLess(script.index("Checking runtime dependencies"), script.index("Ensuring official MFA models"))
 
     def test_macos_script_creates_environment_and_launches_app(self):
         script = (ROOT / "run_auto_mfa_macos.sh").read_text(encoding="utf-8")
@@ -37,10 +40,13 @@ class StartupScriptTest(unittest.TestCase):
         self.assertIn("miniforge3", script)
         self.assertIn("conda", script)
         self.assertIn('"$ENV_TOOL" env create -f "$ENV_FILE"', script)
+        self.assertIn("runtime_check_quiet", script)
+        self.assertIn('"$ENV_TOOL" env update -n "$ENV_NAME" -f "$ENV_FILE" --prune', script)
         self.assertIn("Ensuring official MFA models", script)
         self.assertIn('"$ENV_TOOL" run -n "$ENV_NAME" mfa model download $model', script)
         self.assertIn('"$ENV_TOOL" run -n "$ENV_NAME" python -m auto_mfa_tool --app', script)
         self.assertIn('cd "$PROJECT_ROOT"', script)
+        self.assertLess(script.index("Checking runtime dependencies"), script.index("Ensuring official MFA models"))
 
     def test_macos_double_click_wrapper_invokes_shell_script(self):
         script = (ROOT / "run_auto_mfa_macos.command").read_text(encoding="utf-8")

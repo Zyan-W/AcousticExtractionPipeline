@@ -41,6 +41,7 @@ This repository contains a Colab-first notebook for automatic phonetic annotatio
 - The main annotation GUI can be launched directly with `python -m auto_mfa_tool --app`.
 - Double-click startup wrappers now exist for Windows (`run_auto_mfa_windows.bat`) and macOS (`run_auto_mfa_macos.command`).
 - Command-line startup scripts also exist for Windows (`run_auto_mfa_windows.ps1`) and macOS (`run_auto_mfa_macos.sh`); they check/create the `auto-mfa` environment and launch the main GUI.
+- The macOS `.command` and `.sh` startup scripts must be tracked with executable file mode so zsh/Finder can run them directly after clone.
 - Startup scripts search common Miniforge/Miniconda locations and can fall back from `mamba` to `conda`, so users do not need to add Miniforge to the global PATH.
 - Startup scripts and the environment guide download the official MFA presets used by the GUI after creating the isolated environment.
 - `environment.yml` defines an isolated `auto-mfa` mamba environment for `python=3.11`, `ffmpeg`, `montreal-forced-aligner`, and `openai-whisper`.

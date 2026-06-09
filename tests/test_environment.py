@@ -11,7 +11,9 @@ from auto_mfa_tool.environment import (
     ENV_NAME,
     build_create_env_command,
     build_launch_command,
+    build_model_download_commands,
     check_environment,
+    model_download_specs,
 )
 
 
@@ -70,6 +72,25 @@ class EnvironmentCheckTest(unittest.TestCase):
     def test_create_command_uses_environment_file(self):
         root = Path("repo")
         self.assertEqual(build_create_env_command(root), ["mamba", "env", "create", "-f", str(root / "environment.yml")])
+
+    def test_model_download_commands_include_official_presets(self):
+        self.assertEqual(
+            model_download_specs(),
+            (
+                ("acoustic", "japanese_mfa"),
+                ("dictionary", "japanese_mfa"),
+                ("acoustic", "korean_mfa"),
+                ("dictionary", "korean_mfa"),
+                ("acoustic", "english_mfa"),
+                ("dictionary", "english_mfa"),
+                ("acoustic", "mandarin_mfa"),
+                ("dictionary", "mandarin_china_mfa"),
+            ),
+        )
+        self.assertEqual(
+            build_model_download_commands()[0],
+            ["mamba", "run", "-n", ENV_NAME, "mfa", "model", "download", "acoustic", "japanese_mfa"],
+        )
 
 
 def fake_runner(responses):

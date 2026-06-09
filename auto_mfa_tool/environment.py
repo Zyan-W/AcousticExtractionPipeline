@@ -10,6 +10,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Sequence
 
+from .presets import LANGUAGE_PRESETS
+
 
 ENV_NAME = "auto-mfa"
 CommandRunner = Callable[[Sequence[str]], subprocess.CompletedProcess[str]]
@@ -57,6 +59,25 @@ def build_create_env_command(root: Path | None = None) -> list[str]:
 
 def build_launch_command() -> list[str]:
     return ["mamba", "run", "-n", ENV_NAME, "python", "-m", "auto_mfa_tool", "--app"]
+
+
+def build_model_download_commands() -> list[list[str]]:
+    return [
+        ["mamba", "run", "-n", ENV_NAME, "mfa", "model", "download", model_type, model_name]
+        for model_type, model_name in model_download_specs()
+    ]
+
+
+def model_download_specs() -> tuple[tuple[str, str], ...]:
+    specs: list[tuple[str, str]] = []
+    for preset in LANGUAGE_PRESETS:
+        for spec in (
+            ("acoustic", preset.mfa_acoustic_model),
+            ("dictionary", preset.mfa_dictionary),
+        ):
+            if spec not in specs:
+                specs.append(spec)
+    return tuple(specs)
 
 
 def check_environment(

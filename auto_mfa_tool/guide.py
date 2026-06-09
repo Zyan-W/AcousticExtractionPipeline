@@ -11,15 +11,18 @@ from tkinter import ttk
 from .environment import (
     build_create_env_command,
     build_launch_command,
+    build_model_download_commands,
     check_environment,
     project_root,
 )
+from .window_icon import apply_waveform_icon
 
 
 class EnvironmentGuideApp(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
         self.title("Auto-MFA Environment Guide")
+        apply_waveform_icon(self)
         self.geometry("820x520")
         self.minsize(720, 460)
 
@@ -80,11 +83,10 @@ class EnvironmentGuideApp(tk.Tk):
     def create_environment(self) -> None:
         if self._is_busy() or not self._create_enabled:
             return
-        command = build_create_env_command()
+        commands = [build_create_env_command(), *build_model_download_commands()]
         self._set_buttons(create=False, launch=False)
         self._log("")
-        self._log("$ " + " ".join(command))
-        self._worker = threading.Thread(target=self._run_streaming_command, args=(command, True), daemon=True)
+        self._worker = threading.Thread(target=self._run_streaming_commands, args=(commands, True), daemon=True)
         self._worker.start()
 
     def launch_tool(self) -> None:
@@ -100,7 +102,20 @@ class EnvironmentGuideApp(tk.Tk):
         else:
             self._log("Auto-MFA launched in the auto-mfa environment.")
 
-    def _run_streaming_command(self, command: list[str], recheck_after: bool) -> None:
+    def _run_streaming_commands(self, commands: list[list[str]], recheck_after: bool) -> None:
+        for command in commands:
+            self._queue.put("$ " + " ".join(command))
+            code = self._run_streaming_command(command)
+            self._queue.put(f"Command finished with exit code {code}.")
+            if code != 0:
+                self._queue.put("__DONE__")
+                return
+            self._queue.put("")
+        if recheck_after:
+            self._queue.put("__RECHECK__")
+        self._queue.put("__DONE__")
+
+    def _run_streaming_command(self, command: list[str]) -> int:
         try:
             process = subprocess.Popen(
                 command,
@@ -113,17 +128,12 @@ class EnvironmentGuideApp(tk.Tk):
             )
         except OSError as exc:
             self._queue.put(f"Could not start command: {exc}")
-            self._queue.put("__DONE__")
-            return
+            return 1
 
         assert process.stdout is not None
         for line in process.stdout:
             self._queue.put(line.rstrip())
-        code = process.wait()
-        self._queue.put(f"Command finished with exit code {code}.")
-        if recheck_after:
-            self._queue.put("__RECHECK__")
-        self._queue.put("__DONE__")
+        return process.wait()
 
     def _drain_queue(self) -> None:
         try:

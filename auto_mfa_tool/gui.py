@@ -9,12 +9,21 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 from .pipeline import PipelineConfig, PipelineError, run_pipeline
+from .presets import (
+    DEFAULT_LANGUAGE_PRESET,
+    acoustic_model_choices,
+    dictionary_choices,
+    find_preset,
+    preset_labels,
+)
+from .window_icon import apply_waveform_icon
 
 
 class AutoMfaApp(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
         self.title("Auto-MFA")
+        apply_waveform_icon(self)
         self.geometry("860x620")
         self.minsize(760, 520)
 
@@ -23,10 +32,11 @@ class AutoMfaApp(tk.Tk):
 
         self.audio_dir = tk.StringVar()
         self.output_dir = tk.StringVar()
-        self.language = tk.StringVar(value="ja")
+        self.language_preset = tk.StringVar(value=DEFAULT_LANGUAGE_PRESET.label)
+        self.language = tk.StringVar(value=DEFAULT_LANGUAGE_PRESET.whisper_language)
         self.whisper_model = tk.StringVar(value="small")
-        self.mfa_acoustic_model = tk.StringVar(value="japanese_mfa")
-        self.mfa_dictionary = tk.StringVar(value="japanese_mfa")
+        self.mfa_acoustic_model = tk.StringVar(value=DEFAULT_LANGUAGE_PRESET.mfa_acoustic_model)
+        self.mfa_dictionary = tk.StringVar(value=DEFAULT_LANGUAGE_PRESET.mfa_dictionary)
         self.status_text = tk.StringVar(value="Ready")
 
         self._build_ui()
@@ -39,11 +49,23 @@ class AutoMfaApp(tk.Tk):
         form = ttk.Frame(self, padding=12)
         form.grid(row=0, column=0, sticky="ew")
         form.columnconfigure(1, weight=1)
+        form.columnconfigure(3, weight=1)
 
         self._add_path_row(form, 0, "Audio folder", self.audio_dir, self._choose_audio_dir)
         self._add_path_row(form, 1, "Output folder", self.output_dir, self._choose_output_dir)
 
-        ttk.Label(form, text="Whisper model").grid(row=2, column=0, sticky="w", pady=(8, 0))
+        ttk.Label(form, text="Language preset").grid(row=2, column=0, sticky="w", pady=(8, 0))
+        preset_box = ttk.Combobox(
+            form,
+            textvariable=self.language_preset,
+            values=preset_labels(),
+            state="readonly",
+            width=22,
+        )
+        preset_box.grid(row=2, column=1, sticky="w", pady=(8, 0))
+        preset_box.bind("<<ComboboxSelected>>", self._apply_language_preset)
+
+        ttk.Label(form, text="Whisper model").grid(row=2, column=2, sticky="w", padx=(12, 4), pady=(8, 0))
         model_box = ttk.Combobox(
             form,
             textvariable=self.whisper_model,
@@ -51,21 +73,40 @@ class AutoMfaApp(tk.Tk):
             state="readonly",
             width=14,
         )
-        model_box.grid(row=2, column=1, sticky="w", pady=(8, 0))
+        model_box.grid(row=2, column=3, sticky="w", pady=(8, 0))
 
-        ttk.Label(form, text="Language").grid(row=2, column=2, sticky="w", padx=(12, 4), pady=(8, 0))
-        ttk.Entry(form, textvariable=self.language, width=10).grid(row=2, column=3, sticky="w", pady=(8, 0))
+        ttk.Label(form, text="Whisper language").grid(row=3, column=0, sticky="w", pady=(8, 0))
+        language_box = ttk.Combobox(
+            form,
+            textvariable=self.language,
+            values=("ja", "ko", "en", "zh"),
+            state="readonly",
+            width=10,
+        )
+        language_box.grid(row=3, column=1, sticky="w", pady=(8, 0))
 
-        ttk.Label(form, text="MFA acoustic").grid(row=3, column=0, sticky="w", pady=(8, 0))
-        ttk.Entry(form, textvariable=self.mfa_acoustic_model).grid(row=3, column=1, sticky="ew", pady=(8, 0))
+        ttk.Label(form, text="MFA acoustic").grid(row=4, column=0, sticky="w", pady=(8, 0))
+        acoustic_box = ttk.Combobox(
+            form,
+            textvariable=self.mfa_acoustic_model,
+            values=acoustic_model_choices(),
+            state="readonly",
+        )
+        acoustic_box.grid(row=4, column=1, sticky="ew", pady=(8, 0))
 
-        ttk.Label(form, text="MFA dictionary").grid(row=3, column=2, sticky="w", padx=(12, 4), pady=(8, 0))
-        ttk.Entry(form, textvariable=self.mfa_dictionary).grid(row=3, column=3, sticky="ew", pady=(8, 0))
+        ttk.Label(form, text="MFA dictionary").grid(row=4, column=2, sticky="w", padx=(12, 4), pady=(8, 0))
+        dictionary_box = ttk.Combobox(
+            form,
+            textvariable=self.mfa_dictionary,
+            values=dictionary_choices(),
+            state="readonly",
+        )
+        dictionary_box.grid(row=4, column=3, sticky="ew", pady=(8, 0))
 
         self.run_button = ttk.Button(form, text="Run", command=self._start_pipeline)
-        self.run_button.grid(row=4, column=0, sticky="w", pady=(12, 0))
+        self.run_button.grid(row=5, column=0, sticky="w", pady=(12, 0))
 
-        ttk.Label(form, textvariable=self.status_text).grid(row=4, column=1, columnspan=3, sticky="w", pady=(12, 0))
+        ttk.Label(form, textvariable=self.status_text).grid(row=5, column=1, columnspan=3, sticky="w", pady=(12, 0))
 
         log_frame = ttk.Frame(self, padding=(12, 0, 12, 12))
         log_frame.grid(row=1, column=0, sticky="nsew")
@@ -99,6 +140,15 @@ class AutoMfaApp(tk.Tk):
         directory = filedialog.askdirectory(title="Select output folder")
         if directory:
             self.output_dir.set(directory)
+
+    def _apply_language_preset(self, _event: tk.Event | None = None) -> None:
+        preset = find_preset(self.language_preset.get())
+        if not preset:
+            return
+        self.language.set(preset.whisper_language)
+        self.mfa_acoustic_model.set(preset.mfa_acoustic_model)
+        self.mfa_dictionary.set(preset.mfa_dictionary)
+        self.status_text.set(f"Preset: {preset.label}")
 
     def _start_pipeline(self) -> None:
         if self._worker and self._worker.is_alive():

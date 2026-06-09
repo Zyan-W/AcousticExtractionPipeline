@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# Python runtime caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Test/tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local virtual environments
+.venv/
+venv/
+.env/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+
+# Auto-MFA local inputs and generated outputs
+whisper-output/
+mfa-input/
+mfa-output/
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.TextGrid

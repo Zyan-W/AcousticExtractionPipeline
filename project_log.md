@@ -48,6 +48,7 @@ This repository contains a Colab-first notebook for automatic phonetic annotatio
 - The main tool assumes `whisper`, `ffmpeg`, and `mfa` are available in the active environment or through `mamba run -n auto-mfa`.
 - The main GUI includes a `Check Environment` button that verifies the active Python, `whisper`, `ffmpeg`, `mfa`, and the NumPy/PyTorch bridge before a long Whisper run.
 - The pipeline runs the same NumPy/PyTorch preflight before invoking Whisper, so stale macOS environments fail early with a clear environment report instead of a Whisper stack trace such as `RuntimeError: Numpy is not available`.
+- `.gitignore` excludes Python caches, local virtual environments, OS metadata, local audio files, generated TextGrids, and Auto-MFA output directories so GitHub Desktop does not offer them for commit after local runs.
 - Release documentation now includes `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md`, and `AI_USAGE.md`.
 - The conversion function reads Whisper JSON `segments` and creates one interval tier named `sentences`.
 - The main GUI language preset dropdown includes only MFA official acoustic/dictionary pairs that were confirmed in MFA model documentation: Japanese (`japanese_mfa`/`japanese_mfa`), Korean (`korean_mfa`/`korean_mfa`), English (`english_mfa`/`english_mfa`), and Mandarin Chinese (`mandarin_mfa`/`mandarin_china_mfa`).

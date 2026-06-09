@@ -251,6 +251,9 @@ def run_mfa(paths: PipelinePaths, config: PipelineConfig, log: LogSink) -> None:
         run_command(command, log)
     except PipelineError as exc:
         log("")
+        log("If MFA reports missing Japanese tokenizer support, update the environment first:")
+        log("mamba env update -n auto-mfa -f environment.yml --prune")
+        log("")
         log("If MFA cannot find a model, install it first, for example:")
         log(f"mfa model download acoustic {config.mfa_acoustic_model}")
         log(f"mfa model download dictionary {config.mfa_dictionary}")

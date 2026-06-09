@@ -66,8 +66,8 @@ bash ./run_auto_mfa_macos.sh
 
 The scripts switch to the project directory, create the `auto-mfa` environment
 from `environment.yml` if it is missing, update an existing stale environment
-when the NumPy/PyTorch/MFA runtime check fails, download the official MFA model
-presets used by the GUI, and launch the annotation GUI.
+when the runtime/tokenizer check fails, download the official MFA model presets
+used by the GUI, and launch the annotation GUI.
 They first try to use `mamba`; if Miniforge is installed but `mamba` is not on
 PATH, they search common Miniforge/Miniconda locations and can fall back to
 `conda`.
@@ -90,8 +90,9 @@ The environment guide opens first:
 2. If Miniforge/mamba is found and `auto-mfa` does not exist, click `Create Environment`.
 3. After the isolated environment is ready, click `Launch Tool`.
 
-The environment check verifies `whisper`, `ffmpeg`, `mfa`, and the
-NumPy/PyTorch runtime used by Whisper.
+The environment check verifies `whisper`, `ffmpeg`, `mfa`, the NumPy/PyTorch
+runtime used by Whisper, and the Japanese tokenizer packages MFA needs for
+Japanese text normalization.
 
 `Launch Tool` starts the main app with:
 
@@ -137,8 +138,8 @@ python -m auto_mfa_tool --app
 
 Choose an audio folder and an output folder, then click `Run`.
 You can click `Check Environment` first to verify the active Python,
-`whisper`, `ffmpeg`, `mfa`, and the NumPy/PyTorch bridge before starting a long
-Whisper job.
+`whisper`, `ffmpeg`, `mfa`, the NumPy/PyTorch bridge, and Japanese tokenizer
+support before starting a long Whisper/MFA job.
 
 Supported audio extensions are `.wav`, `.mp3`, `.m4a`, and `.flac`.
 
@@ -180,6 +181,17 @@ mamba env remove -n auto-mfa
 mamba env create -f environment.yml
 ```
 
+If MFA reports `Please install Japanese support via conda install -c
+conda-forge spacy sudachipy sudachidict-core`, update the existing isolated
+environment from the repository root:
+
+```bash
+mamba env update -n auto-mfa -f environment.yml --prune
+```
+
+The double-click startup scripts also run this repair path automatically when
+their runtime check detects that these tokenizer packages are missing.
+
 ## macOS Notes
 
 The tool is not Windows-only. It uses Python standard-library GUI code
@@ -213,6 +225,9 @@ repository:
 | pip | Installs `openai-whisper` inside the isolated environment | Installed by `environment.yml`; package version resolved by conda-forge | [MIT License](https://github.com/pypa/pip) |
 | NumPy | Whisper/PyTorch runtime compatibility check and array bridge | `numpy<2` from `environment.yml`; not bundled | [BSD-3-Clause](https://numpy.org/doc/stable/license.html) |
 | PyTorch | Whisper runtime backend and NumPy bridge check | Installed as an `openai-whisper` dependency; not bundled | [BSD-style](https://github.com/pytorch/pytorch/blob/main/LICENSE) |
+| spaCy | Japanese tokenizer support required by MFA text normalization | Installed by `environment.yml`; not pinned or bundled | [MIT License](https://github.com/explosion/spaCy) |
+| SudachiPy | Japanese morphological analyzer used by MFA/spaCy Japanese support | Installed by `environment.yml`; not pinned or bundled | [Apache-2.0](https://anaconda.org/channels/conda-forge/packages/sudachipy/overview) |
+| SudachiDict Core | Core Japanese dictionary data for SudachiPy | Installed by `environment.yml`; not pinned or bundled | [Apache-2.0](https://pypi.org/project/SudachiDict-core/) |
 | OpenAI Whisper / `openai-whisper` | ASR transcription CLI | Installed by `environment.yml`; not pinned or bundled | [MIT License](https://github.com/openai/whisper/blob/main/LICENSE) |
 | FFmpeg | Audio decoding support used by Whisper | Installed by `environment.yml`; not pinned or bundled | [LGPL v2.1+ by default](https://www.ffmpeg.org/legal.html); GPL v2+ if built with GPL components |
 | Montreal Forced Aligner | Forced alignment CLI | Installed by `environment.yml`; not pinned or bundled | [MIT License](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) |

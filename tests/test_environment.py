@@ -9,6 +9,7 @@ from pathlib import Path
 
 from auto_mfa_tool.environment import (
     ENV_NAME,
+    JAPANESE_TOKENIZER_CHECK_CODE,
     PYTHON_RUNTIME_CHECK_CODE,
     build_create_env_command,
     build_launch_command,
@@ -54,6 +55,9 @@ class EnvironmentCheckTest(unittest.TestCase):
             ("mamba", "run", "-n", ENV_NAME, "ffmpeg", "-version"): completed("ok"),
             ("mamba", "run", "-n", ENV_NAME, "mfa", "version"): completed("ok"),
             ("mamba", "run", "-n", ENV_NAME, "python", "-c", PYTHON_RUNTIME_CHECK_CODE): completed("numpy=1.26; torch=2.0"),
+            ("mamba", "run", "-n", ENV_NAME, "python", "-c", JAPANESE_TOKENIZER_CHECK_CODE): completed(
+                "spacy/sudachipy/sudachidict-core available"
+            ),
         }
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -73,6 +77,9 @@ class EnvironmentCheckTest(unittest.TestCase):
             ("mamba", "run", "-n", ENV_NAME, "ffmpeg", "-version"): completed("ok"),
             ("mamba", "run", "-n", ENV_NAME, "mfa", "version"): completed("ok"),
             ("mamba", "run", "-n", ENV_NAME, "python", "-c", PYTHON_RUNTIME_CHECK_CODE): failed("RuntimeError: Numpy is not available"),
+            ("mamba", "run", "-n", ENV_NAME, "python", "-c", JAPANESE_TOKENIZER_CHECK_CODE): completed(
+                "spacy/sudachipy/sudachidict-core available"
+            ),
         }
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -83,6 +90,28 @@ class EnvironmentCheckTest(unittest.TestCase):
         self.assertTrue(status.env_exists)
         self.assertFalse(status.ready)
         self.assertIn("numpy/torch: missing", "\n".join(status.messages))
+
+    def test_japanese_tokenizer_failure_blocks_ready_status(self):
+        env_path = f"/example/envs/{ENV_NAME}"
+        responses = {
+            ("mamba", "env", "list", "--json"): completed({"envs": [env_path]}),
+            ("mamba", "run", "-n", ENV_NAME, "whisper", "--help"): completed("ok"),
+            ("mamba", "run", "-n", ENV_NAME, "ffmpeg", "-version"): completed("ok"),
+            ("mamba", "run", "-n", ENV_NAME, "mfa", "version"): completed("ok"),
+            ("mamba", "run", "-n", ENV_NAME, "python", "-c", PYTHON_RUNTIME_CHECK_CODE): completed("numpy=1.26; torch=2.0"),
+            ("mamba", "run", "-n", ENV_NAME, "python", "-c", JAPANESE_TOKENIZER_CHECK_CODE): failed(
+                "ModuleNotFoundError: No module named 'sudachipy'"
+            ),
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "environment.yml").write_text("name: auto-mfa\n", encoding="utf-8")
+
+            status = check_environment(root=root, which=lambda _: "mamba", run=fake_runner(responses))
+
+        self.assertTrue(status.env_exists)
+        self.assertFalse(status.ready)
+        self.assertIn("japanese-tokenizer: missing", "\n".join(status.messages))
 
     def test_launch_command_uses_isolated_environment(self):
         self.assertEqual(

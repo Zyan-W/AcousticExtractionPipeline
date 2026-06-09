@@ -6,6 +6,9 @@ dependencies:
   - numpy<2
   - ffmpeg
   - montreal-forced-aligner
+  - spacy
+  - sudachipy
+  - sudachidict-core
   - pip
   - pip:
       - openai-whisper

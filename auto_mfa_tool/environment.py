@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Callable, Sequence
 
 from .presets import LANGUAGE_PRESETS
-from .runtime_checks import PYTHON_RUNTIME_CHECK_CODE
+from .runtime_checks import JAPANESE_TOKENIZER_CHECK_CODE, PYTHON_RUNTIME_CHECK_CODE
 
 
 ENV_NAME = "auto-mfa"
@@ -122,6 +122,7 @@ def check_environment(
             _check_tool(run, "ffmpeg", ["-version"]),
             _check_tool(run, "mfa", ["version"]),
             _check_python_runtime(run),
+            _check_japanese_tokenizer(run),
         ]
         for tool in tools:
             messages.append(f"{tool.name}: {'ok' if tool.ok else 'missing'} - {tool.detail}")
@@ -182,3 +183,11 @@ def _check_python_runtime(run: CommandRunner) -> ToolCheck:
     if result.returncode == 0:
         return ToolCheck("numpy/torch", True, output or "available in isolated environment")
     return ToolCheck("numpy/torch", False, output or "runtime check failed")
+
+
+def _check_japanese_tokenizer(run: CommandRunner) -> ToolCheck:
+    result = run(["mamba", "run", "-n", ENV_NAME, "python", "-c", JAPANESE_TOKENIZER_CHECK_CODE])
+    output = " ".join(result.stdout.split())[:180]
+    if result.returncode == 0:
+        return ToolCheck("japanese-tokenizer", True, output or "available in isolated environment")
+    return ToolCheck("japanese-tokenizer", False, output or "runtime check failed")

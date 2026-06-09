@@ -12,6 +12,9 @@ does not vendor or copy third-party source code.
 | pip | Installs `openai-whisper` inside the isolated environment | Installed by `environment.yml`; package version resolved by conda-forge | MIT License | Invoked by mamba during environment creation; not bundled |
 | NumPy | Whisper/PyTorch runtime compatibility check | `numpy<2` from `environment.yml`; not bundled | BSD-3-Clause | Imported by a runtime check command to catch incompatible environments before transcription |
 | PyTorch | Whisper runtime backend compatibility check | Installed as an `openai-whisper` dependency; not bundled | BSD-style | Imported by a runtime check command to verify the NumPy bridge used by Whisper |
+| spaCy | Japanese tokenizer support required by MFA text normalization | Installed by `environment.yml`; not pinned or bundled | MIT License | Imported by environment/runtime checks; used indirectly by MFA for Japanese support |
+| SudachiPy | Japanese morphological analyzer used by MFA/spaCy Japanese support | Installed by `environment.yml`; not pinned or bundled | Apache-2.0 | Imported by environment/runtime checks; used indirectly by MFA for Japanese support |
+| SudachiDict Core | Core Japanese dictionary data for SudachiPy | Installed by `environment.yml`; not pinned or bundled | Apache-2.0 | Imported by environment/runtime checks; used indirectly by MFA for Japanese support |
 
 ## External Runtime Tools
 

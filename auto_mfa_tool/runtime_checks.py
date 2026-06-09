@@ -15,6 +15,12 @@ PYTHON_RUNTIME_CHECK_CODE = (
     "torch.from_numpy(np.zeros(1, dtype=np.float32)); "
     "print(f'numpy={np.__version__}; torch={torch.__version__}')"
 )
+JAPANESE_TOKENIZER_CHECK_CODE = (
+    "import spacy; "
+    "import sudachipy; "
+    "import sudachidict_core; "
+    "print('spacy/sudachipy/sudachidict-core available')"
+)
 
 CommandRunner = Callable[[Sequence[str]], subprocess.CompletedProcess[str]]
 
@@ -40,6 +46,7 @@ def check_current_environment(
         _check_command("ffmpeg", which),
         _check_command("mfa", which),
         _check_numpy_torch(run, python_executable),
+        _check_japanese_tokenizer(run, python_executable),
     )
 
 
@@ -79,6 +86,19 @@ def _check_numpy_torch(run: CommandRunner, python_executable: str) -> RuntimeChe
         False,
         output or "runtime check failed",
         "Run `mamba env update -n auto-mfa -f environment.yml` or recreate the auto-mfa environment.",
+    )
+
+
+def _check_japanese_tokenizer(run: CommandRunner, python_executable: str) -> RuntimeCheck:
+    result = run([python_executable, "-c", JAPANESE_TOKENIZER_CHECK_CODE])
+    output = " ".join(result.stdout.split())[:240]
+    if result.returncode == 0:
+        return RuntimeCheck("japanese-tokenizer", True, output or "available")
+    return RuntimeCheck(
+        "japanese-tokenizer",
+        False,
+        output or "runtime check failed",
+        "Run `mamba env update -n auto-mfa -f environment.yml` or install spacy sudachipy sudachidict-core.",
     )
 
 

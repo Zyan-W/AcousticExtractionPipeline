@@ -30,3 +30,10 @@ mfa-output/
 *.m4a
 *.flac
 *.TextGrid
+
+# Offline release build outputs
+/dist/
+/runtime/
+/payload/
+/models/
+*.zip.sha256

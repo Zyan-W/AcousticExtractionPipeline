@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Iterable, Sequence
 
+from .offline import normalize_whisper_model, whisper_model_dir_args
 from .runtime_checks import check_current_environment, environment_is_ready, format_environment_report
 
 
@@ -116,13 +117,14 @@ def run_command(command: Sequence[str], log: LogSink = default_log) -> None:
         raise PipelineError(f"Command failed with exit code {return_code}: {command[0]}")
 
 
-def run_whisper(audio_files: Sequence[Path], output_dir: Path, config: PipelineConfig, log: LogSink) -> None:
-    output_dir.mkdir(parents=True, exist_ok=True)
-    command = [
+def build_whisper_command(audio_files: Sequence[Path], output_dir: Path, config: PipelineConfig) -> list[str]:
+    whisper_model = normalize_whisper_model(config.whisper_model)
+    return [
         "whisper",
         *(str(path) for path in audio_files),
         "--model",
-        config.whisper_model,
+        whisper_model,
+        *whisper_model_dir_args(),
         "--language",
         config.language,
         "--output_dir",
@@ -130,7 +132,11 @@ def run_whisper(audio_files: Sequence[Path], output_dir: Path, config: PipelineC
         "--output_format",
         "all",
     ]
-    run_command(command, log)
+
+
+def run_whisper(audio_files: Sequence[Path], output_dir: Path, config: PipelineConfig, log: LogSink) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    run_command(build_whisper_command(audio_files, output_dir, config), log)
 
 
 def parse_whisper_json(json_path: Path) -> list[TextGridInterval]:
@@ -265,7 +271,7 @@ def run_pipeline(config: PipelineConfig, log: LogSink = default_log) -> Pipeline
         audio_dir=Path(config.audio_dir),
         output_dir=Path(config.output_dir),
         language=config.language.strip() or "ja",
-        whisper_model=config.whisper_model.strip() or "small",
+        whisper_model=normalize_whisper_model(config.whisper_model.strip() or "small"),
         tier_name=config.tier_name.strip() or "sentences",
         mfa_acoustic_model=config.mfa_acoustic_model.strip() or "japanese_mfa",
         mfa_dictionary=config.mfa_dictionary.strip() or "japanese_mfa",

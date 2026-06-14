@@ -8,6 +8,7 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
+from .offline import normalize_whisper_model, offline_mode_enabled, whisper_model_choices
 from .pipeline import PipelineConfig, PipelineError, run_pipeline
 from .presets import (
     DEFAULT_LANGUAGE_PRESET,
@@ -30,15 +31,18 @@ class AutoMfaApp(tk.Tk):
 
         self._log_queue: queue.Queue[str] = queue.Queue()
         self._worker: threading.Thread | None = None
+        self.offline_mode = offline_mode_enabled()
+        self._whisper_model_choices = whisper_model_choices()
 
         self.audio_dir = tk.StringVar()
         self.output_dir = tk.StringVar()
         self.language_preset = tk.StringVar(value=DEFAULT_LANGUAGE_PRESET.label)
         self.language = tk.StringVar(value=DEFAULT_LANGUAGE_PRESET.whisper_language)
-        self.whisper_model = tk.StringVar(value="small")
+        self.whisper_model = tk.StringVar(value=normalize_whisper_model("small"))
         self.mfa_acoustic_model = tk.StringVar(value=DEFAULT_LANGUAGE_PRESET.mfa_acoustic_model)
         self.mfa_dictionary = tk.StringVar(value=DEFAULT_LANGUAGE_PRESET.mfa_dictionary)
-        self.status_text = tk.StringVar(value="Ready")
+        initial_status = "Offline mode: bundled model ready" if self.offline_mode else "Ready"
+        self.status_text = tk.StringVar(value=initial_status)
 
         self._build_ui()
         self.after(100, self._drain_log_queue)
@@ -70,7 +74,7 @@ class AutoMfaApp(tk.Tk):
         model_box = ttk.Combobox(
             form,
             textvariable=self.whisper_model,
-            values=("tiny", "base", "small", "medium", "large"),
+            values=self._whisper_model_choices,
             state="readonly",
             width=14,
         )
@@ -178,7 +182,7 @@ class AutoMfaApp(tk.Tk):
             audio_dir=Path(self.audio_dir.get().strip()),
             output_dir=Path(self.output_dir.get().strip()),
             language=self.language.get().strip() or "ja",
-            whisper_model=self.whisper_model.get().strip() or "small",
+            whisper_model=normalize_whisper_model(self.whisper_model.get().strip() or "small"),
             mfa_acoustic_model=self.mfa_acoustic_model.get().strip() or "japanese_mfa",
             mfa_dictionary=self.mfa_dictionary.get().strip() or "japanese_mfa",
         )

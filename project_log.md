@@ -1,6 +1,6 @@
 # Auto-MFA Project Log
 
-Last updated: 2026-06-09
+Last updated: 2026-06-15
 
 ## Purpose
 
@@ -51,6 +51,10 @@ This repository contains a Colab-first notebook for automatic phonetic annotatio
 - The pipeline runs the same NumPy/PyTorch preflight before invoking Whisper, so stale macOS environments fail early with a clear environment report instead of a Whisper stack trace such as `RuntimeError: Numpy is not available`.
 - `.gitignore` excludes Python caches, local virtual environments, OS metadata, local audio files, generated TextGrids, and Auto-MFA output directories so GitHub Desktop does not offer them for commit after local runs.
 - Release documentation now includes `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md`, and `AI_USAGE.md`.
+- The first offline release target is Windows x86_64 only. It should provide a copyable offline folder and GitHub Release asset while keeping generated environment/model bundles out of Git.
+- Windows offline runtime should set `AUTO_MFA_OFFLINE=1`, point Whisper at a bundled `small` model cache, point MFA at bundled pretrained models via `MFA_ROOT_DIR`, and restrict the GUI to the bundled Whisper model.
+- Offline release build tooling should create/update the `auto-mfa` environment, download the GUI's official MFA presets, download Whisper `small`, pack the Windows environment with `conda-pack`, and emit a manifest plus SHA-256 checksums.
+- Before the first offline release push/upload, inspect staged files and generated manifests for local paths, audio files, TextGrid outputs, tokens, usernames, and device-specific data.
 - The conversion function reads Whisper JSON `segments` and creates one interval tier named `sentences`.
 - The main GUI language preset dropdown includes only MFA official acoustic/dictionary pairs that were confirmed in MFA model documentation: Japanese (`japanese_mfa`/`japanese_mfa`), Korean (`korean_mfa`/`korean_mfa`), English (`english_mfa`/`english_mfa`), and Mandarin Chinese (`mandarin_mfa`/`mandarin_china_mfa`).
 - Minnan/Hokkien is intentionally not listed because the official MFA acoustic and dictionary indexes did not show a confirmed paired preset.

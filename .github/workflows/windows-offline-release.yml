@@ -1,0 +1,80 @@
+name: Build Windows Offline Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Release tag to upload to. Leave blank to build artifact only."
+        required: false
+        type: string
+      upload_release:
+        description: "Upload the offline bundle to the release tag."
+        required: true
+        default: false
+        type: boolean
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  windows-offline:
+    runs-on: windows-2025
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Miniforge
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          use-mamba: true
+
+      - name: Build Windows offline bundle
+        run: .\tools\build_windows_offline_release.ps1
+
+      - name: Smoke test offline bundle
+        run: |
+          $bundle = Get-ChildItem -LiteralPath .\dist\offline -Directory -Filter "Auto-MFA-windows-x86_64-offline" | Select-Object -First 1
+          if (-not $bundle) {
+            throw "Offline bundle folder was not created."
+          }
+          powershell -ExecutionPolicy Bypass -File (Join-Path $bundle.FullName "run_auto_mfa_windows_offline.ps1") -SmokeTest
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Auto-MFA-windows-x86_64-offline
+          path: |
+            dist/offline/Auto-MFA-windows-x86_64-offline.zip
+            dist/offline/Auto-MFA-windows-x86_64-offline.zip.sha256
+            dist/offline/Auto-MFA-windows-x86_64-offline/offline_manifest.json
+            dist/offline/Auto-MFA-windows-x86_64-offline/SHA256SUMS.txt
+          if-no-files-found: error
+
+      - name: Upload release assets
+        if: github.ref_type == 'tag' || inputs.upload_release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_TAG_NAME: ${{ inputs.tag_name }}
+        run: |
+          $tagName = if ($env:GITHUB_REF_TYPE -eq "tag") { $env:GITHUB_REF_NAME } else { $env:INPUT_TAG_NAME }
+          if (-not $tagName) {
+            throw "Set tag_name when upload_release is true for a manual workflow run."
+          }
+          $releaseExists = gh release view $tagName *> $null; $LASTEXITCODE -eq 0
+          if (-not $releaseExists) {
+            gh release create $tagName `
+              --title "Auto-MFA $tagName" `
+              --notes "Windows x86_64 offline release. Download Auto-MFA-windows-x86_64-offline.zip and verify it with the .sha256 file before sharing."
+          }
+          gh release upload $tagName `
+            .\dist\offline\Auto-MFA-windows-x86_64-offline.zip `
+            .\dist\offline\Auto-MFA-windows-x86_64-offline.zip.sha256 `
+            --clobber

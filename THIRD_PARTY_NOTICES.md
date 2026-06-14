@@ -46,3 +46,15 @@ are not imported by the local desktop GUI.
 - Whisper, FFmpeg, and MFA are used through public command-line interfaces.
 - No code has been copied from specific open-source repositories, blogs,
   Stack Overflow answers, or papers.
+
+## Windows Offline Release Artifacts
+
+The Windows offline release is a generated distribution, not committed source.
+It may redistribute a packed conda environment, Whisper `small` model weights,
+and MFA pretrained acoustic/dictionary model assets. Review
+`OFFLINE_RELEASE_NOTICES.md`, the generated `offline_manifest.json`, conda
+package metadata, and `SHA256SUMS.txt` before publishing an offline bundle.
+
+Do not publish a Windows offline bundle that includes GPL-enabled FFmpeg or any
+GPL, AGPL, SSPL, BUSL, unclear-license, private, or machine-local material
+unless redistribution has been explicitly approved.

@@ -22,14 +22,43 @@ Install Python and Miniforge before first use:
 - Python 3.10+ with `tkinter`
 - Miniforge with `mamba`
 
-For Apache-2.0 release compatibility, this repository does not bundle FFmpeg.
-If you redistribute binaries with this project, use an FFmpeg build that fits
-your redistribution policy; do not bundle a GPL-enabled FFmpeg build without
-explicit approval.
+For Apache-2.0 release compatibility, this source repository and the online
+setup flow do not bundle FFmpeg. If you redistribute binaries with this
+project, use an FFmpeg build that fits your redistribution policy; do not
+bundle a GPL-enabled FFmpeg build without explicit approval.
 
 The environment guide creates an isolated `auto-mfa` conda environment from
 `environment.yml`. It does not install Miniforge itself and does not install
 packages into the global Python environment.
+
+## Windows Offline Release
+
+The Windows offline release is built separately from the source repository. It
+contains a packed Windows conda environment, Whisper `small`, the GUI's official
+MFA preset models, offline launchers, `offline_manifest.json`, and
+`SHA256SUMS.txt`.
+
+To use the offline bundle on a no-network Windows machine:
+
+1. Extract the release zip to a writable local folder.
+2. Double-click `run_auto_mfa_windows_offline.bat`.
+3. Wait for the first launch to unpack the bundled environment.
+
+The offline launcher does not require Miniforge, mamba, conda, or internet
+access on the target machine. Only Whisper `small` is bundled in the first
+offline release, so offline mode restricts the GUI to that model.
+
+To build the Windows offline bundle on a connected Windows machine or GitHub
+Actions runner:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\build_windows_offline_release.ps1
+```
+
+Generated bundles are written under `dist\offline\` and are intentionally kept
+out of Git. Before publishing the first offline release, inspect the generated
+manifest and staged files for private audio, generated TextGrids, local paths,
+tokens, usernames, and device-specific data.
 
 ## First Run
 
@@ -215,8 +244,10 @@ Direct local GUI imports are Python standard-library modules only:
 
 - Python standard library, including `tkinter`: [PSF License Agreement](https://docs.python.org/3/license.html).
 
-External command-line tools used at runtime are not bundled or copied into this
-repository:
+External command-line tools used by the source checkout and online setup flow
+are not bundled or copied into this repository. The separate Windows offline
+release bundles these tools inside a generated conda-pack environment; see
+`OFFLINE_RELEASE_NOTICES.md` before redistributing that bundle.
 
 | Name | Purpose | Version | License |
 | --- | --- | --- | --- |
@@ -229,7 +260,7 @@ repository:
 | SudachiPy | Japanese morphological analyzer used by MFA/spaCy Japanese support | Installed by `environment.yml`; not pinned or bundled | [Apache-2.0](https://anaconda.org/channels/conda-forge/packages/sudachipy/overview) |
 | SudachiDict Core | Core Japanese dictionary data for SudachiPy | Installed by `environment.yml`; not pinned or bundled | [Apache-2.0](https://pypi.org/project/SudachiDict-core/) |
 | OpenAI Whisper / `openai-whisper` | ASR transcription CLI | Installed by `environment.yml`; not pinned or bundled | [MIT License](https://github.com/openai/whisper/blob/main/LICENSE) |
-| FFmpeg | Audio decoding support used by Whisper | Installed by `environment.yml`; not pinned or bundled | [LGPL v2.1+ by default](https://www.ffmpeg.org/legal.html); GPL v2+ if built with GPL components |
+| FFmpeg | Audio decoding support used by Whisper | Installed by `environment.yml`; not pinned or bundled in the source checkout | [LGPL v2.1+ by default](https://www.ffmpeg.org/legal.html); GPL v2+ if built with GPL components |
 | Montreal Forced Aligner | Forced alignment CLI | Installed by `environment.yml`; not pinned or bundled | [MIT License](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) |
 | MFA pretrained models, including `japanese_mfa`, `korean_mfa`, `english_mfa`, `mandarin_mfa`, and `mandarin_china_mfa` | Acoustic/dictionary models | Downloaded by the setup flow through the MFA CLI; not bundled | [CC BY 4.0](https://github.com/MontrealCorpusTools/mfa-models) |
 

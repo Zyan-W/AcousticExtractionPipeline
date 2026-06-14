@@ -144,7 +144,7 @@ function Test-FFmpegRedistributionBuild {
     }
     $buildLower = $buildString.ToLowerInvariant()
 
-    if ($buildLower -match "gpl") {
+    if ($buildLower -match "(^|[_-])gpl([_-]|$)") {
         throw "Refusing to build an offline redistributable bundle with GPL-enabled FFmpeg build: $($ffmpeg.version) $buildString"
     }
     if ($buildLower -notmatch "lgpl") {

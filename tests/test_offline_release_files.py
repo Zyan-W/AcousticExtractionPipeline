@@ -36,6 +36,7 @@ class OfflineReleaseFileTest(unittest.TestCase):
         self.assertIn("conda-pack", script)
         self.assertIn("--ignore-missing-files", script)
         self.assertIn("Test-FFmpegRedistributionBuild", script)
+        self.assertIn("(^|[_-])gpl([_-]|$)", script)
         self.assertIn("Refusing to build an offline redistributable bundle with GPL-enabled FFmpeg", script)
         self.assertIn("whisper.load_model('small'", script)
         self.assertIn("MFA_ROOT_DIR", script)

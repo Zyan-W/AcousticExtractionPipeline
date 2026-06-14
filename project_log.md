@@ -53,6 +53,7 @@ This repository contains a Colab-first notebook for automatic phonetic annotatio
 - Release documentation now includes `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md`, and `AI_USAGE.md`.
 - The first offline release target is Windows x86_64 only. It should provide a copyable offline folder and GitHub Release asset while keeping generated environment/model bundles out of Git.
 - Windows offline runtime should set `AUTO_MFA_OFFLINE=1`, point Whisper at a bundled `small` model cache, point MFA at bundled pretrained models via `MFA_ROOT_DIR`, and restrict the GUI to the bundled Whisper model.
+- Windows offline runtime also forces Python/stdout UTF-8 (`PYTHONUTF8=1`, `PYTHONIOENCODING=utf-8`) because the Whisper CLI help text can include Japanese characters and fails under Windows runner cp1252 output encoding.
 - Offline release build tooling should create/update the `auto-mfa` environment, download the GUI's official MFA presets, download Whisper `small`, pack the Windows environment with `conda-pack`, and emit a manifest plus SHA-256 checksums.
 - Before the first offline release push/upload, inspect staged files and generated manifests for local paths, audio files, TextGrid outputs, tokens, usernames, and device-specific data.
 - Windows offline release tooling constrains FFmpeg to an LGPL build and fails if the resolved FFmpeg build string contains `gpl`; this protects the redistributable offline package from accidentally bundling GPL-enabled FFmpeg.

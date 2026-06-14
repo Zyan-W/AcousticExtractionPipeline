@@ -13,12 +13,15 @@ class OfflineReleaseFileTest(unittest.TestCase):
 
         self.assertIn("SPDX-License-Identifier: Apache-2.0", script)
         self.assertIn("AUTO_MFA_OFFLINE", script)
+        self.assertIn("PYTHONUTF8", script)
+        self.assertIn("PYTHONIOENCODING", script)
         self.assertIn("AUTO_MFA_WHISPER_MODEL_DIR", script)
         self.assertIn("AUTO_MFA_BUNDLED_WHISPER_MODELS", script)
         self.assertIn("MFA_ROOT_DIR", script)
         self.assertIn("Expand-Archive", script)
         self.assertIn("conda-unpack", script)
         self.assertIn("$SmokeTest", script)
+        self.assertIn("whisper.load_model('small'", script)
         self.assertIn("python.exe", script)
         self.assertIn("-m\", \"auto_mfa_tool\", \"--app", script)
 

@@ -78,11 +78,15 @@ function Invoke-CondaUnpack {
 
 function Set-OfflineEnvironment {
     $env:PYTHONNOUSERSITE = "1"
+    $env:PYTHONUTF8 = "1"
+    $env:PYTHONIOENCODING = "utf-8"
     $env:AUTO_MFA_OFFLINE = "1"
     $env:AUTO_MFA_WHISPER_MODEL_DIR = $WhisperModelDir
     $env:AUTO_MFA_BUNDLED_WHISPER_MODELS = "small"
     $env:MFA_ROOT_DIR = $MfaRootDir
     $env:PATH = "$RuntimeEnv;$RuntimeEnv\Scripts;$RuntimeEnv\Library\bin;$env:PATH"
+    $script:OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+    [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 }
 
 function Test-OfflineRuntime {
@@ -98,6 +102,9 @@ function Test-OfflineRuntime {
 
     $offlineCheck = "from auto_mfa_tool.offline import offline_mode_enabled, whisper_model_dir; import pathlib; assert offline_mode_enabled(); assert pathlib.Path(whisper_model_dir()).joinpath('small.pt').exists(); print('offline config ok')"
     Invoke-Native -FilePath $PythonExe -Arguments @("-c", $offlineCheck)
+
+    $whisperLoadCheck = "import os, whisper; whisper.load_model('small', download_root=os.environ['AUTO_MFA_WHISPER_MODEL_DIR']); print('whisper small load ok')"
+    Invoke-Native -FilePath $PythonExe -Arguments @("-c", $whisperLoadCheck)
 
     Invoke-Native -FilePath "whisper" -Arguments @("--help")
     Invoke-Native -FilePath "mfa" -Arguments @("model", "list", "acoustic")

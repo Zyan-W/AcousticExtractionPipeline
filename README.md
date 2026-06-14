@@ -260,7 +260,7 @@ release bundles these tools inside a generated conda-pack environment; see
 | SudachiPy | Japanese morphological analyzer used by MFA/spaCy Japanese support | Installed by `environment.yml`; not pinned or bundled | [Apache-2.0](https://anaconda.org/channels/conda-forge/packages/sudachipy/overview) |
 | SudachiDict Core | Core Japanese dictionary data for SudachiPy | Installed by `environment.yml`; not pinned or bundled | [Apache-2.0](https://pypi.org/project/SudachiDict-core/) |
 | OpenAI Whisper / `openai-whisper` | ASR transcription CLI | Installed by `environment.yml`; not pinned or bundled | [MIT License](https://github.com/openai/whisper/blob/main/LICENSE) |
-| FFmpeg | Audio decoding support used by Whisper | Installed by `environment.yml`; not pinned or bundled in the source checkout | [LGPL v2.1+ by default](https://www.ffmpeg.org/legal.html); GPL v2+ if built with GPL components |
+| FFmpeg | Audio decoding support used by Whisper | Installed by `environment.yml` with an LGPL build-string constraint; not bundled in the source checkout | [LGPL v2.1+ by default](https://www.ffmpeg.org/legal.html); GPL v2+ if built with GPL components |
 | Montreal Forced Aligner | Forced alignment CLI | Installed by `environment.yml`; not pinned or bundled | [MIT License](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) |
 | MFA pretrained models, including `japanese_mfa`, `korean_mfa`, `english_mfa`, `mandarin_mfa`, and `mandarin_china_mfa` | Acoustic/dictionary models | Downloaded by the setup flow through the MFA CLI; not bundled | [CC BY 4.0](https://github.com/MontrealCorpusTools/mfa-models) |
 

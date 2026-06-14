@@ -24,7 +24,7 @@ repository.
 | Name | Purpose | Version | License | Use |
 | --- | --- | --- | --- | --- |
 | OpenAI Whisper / `openai-whisper` | Speech recognition and timestamped JSON generation | Installed into `auto-mfa` by `environment.yml`; not bundled | MIT License | Called via `whisper` CLI |
-| FFmpeg | Audio decoding support used by Whisper | Installed into `auto-mfa` by `environment.yml`; not bundled | LGPL v2.1 or later by default; GPL v2 or later if built with GPL components | Called as external executable; do not redistribute a GPL-enabled build with this Apache-2.0 project without explicit approval |
+| FFmpeg | Audio decoding support used by Whisper | Installed into `auto-mfa` by `environment.yml` with an LGPL build-string constraint; not bundled in the source checkout | LGPL v2.1 or later by default; GPL v2 or later if built with GPL components | Called as external executable; offline release tooling refuses GPL-enabled builds |
 | Montreal Forced Aligner | Forced alignment | Installed into `auto-mfa` by `environment.yml`; not bundled | MIT License | Called via `mfa` CLI |
 | MFA pretrained models, including `japanese_mfa`, `korean_mfa`, `english_mfa`, `mandarin_mfa`, and `mandarin_china_mfa` | Official acoustic and dictionary presets for alignment | Downloaded by the setup flow through the MFA CLI; not bundled | CC BY 4.0 | Referenced by model name and downloaded through public MFA commands |
 

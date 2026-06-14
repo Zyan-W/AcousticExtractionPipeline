@@ -4,7 +4,7 @@ channels:
 dependencies:
   - python=3.11
   - numpy<2
-  - ffmpeg
+  - ffmpeg=*=*lgpl*
   - montreal-forced-aligner
   - spacy
   - sudachipy

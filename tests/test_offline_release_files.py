@@ -34,6 +34,9 @@ class OfflineReleaseFileTest(unittest.TestCase):
         script = (ROOT / "tools" / "build_windows_offline_release.ps1").read_text(encoding="utf-8")
 
         self.assertIn("conda-pack", script)
+        self.assertIn("--ignore-missing-files", script)
+        self.assertIn("Test-FFmpegRedistributionBuild", script)
+        self.assertIn("Refusing to build an offline redistributable bundle with GPL-enabled FFmpeg", script)
         self.assertIn("whisper.load_model('small'", script)
         self.assertIn("MFA_ROOT_DIR", script)
         self.assertIn("offline_manifest.py", script)

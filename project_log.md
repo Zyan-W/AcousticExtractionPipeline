@@ -55,6 +55,7 @@ This repository contains a Colab-first notebook for automatic phonetic annotatio
 - Windows offline runtime should set `AUTO_MFA_OFFLINE=1`, point Whisper at a bundled `small` model cache, point MFA at bundled pretrained models via `MFA_ROOT_DIR`, and restrict the GUI to the bundled Whisper model.
 - Offline release build tooling should create/update the `auto-mfa` environment, download the GUI's official MFA presets, download Whisper `small`, pack the Windows environment with `conda-pack`, and emit a manifest plus SHA-256 checksums.
 - Before the first offline release push/upload, inspect staged files and generated manifests for local paths, audio files, TextGrid outputs, tokens, usernames, and device-specific data.
+- Windows offline release tooling constrains FFmpeg to an LGPL build and fails if the resolved FFmpeg build string contains `gpl`; this protects the redistributable offline package from accidentally bundling GPL-enabled FFmpeg.
 - The conversion function reads Whisper JSON `segments` and creates one interval tier named `sentences`.
 - The main GUI language preset dropdown includes only MFA official acoustic/dictionary pairs that were confirmed in MFA model documentation: Japanese (`japanese_mfa`/`japanese_mfa`), Korean (`korean_mfa`/`korean_mfa`), English (`english_mfa`/`english_mfa`), and Mandarin Chinese (`mandarin_mfa`/`mandarin_china_mfa`).
 - Minnan/Hokkien is intentionally not listed because the official MFA acoustic and dictionary indexes did not show a confirmed paired preset.

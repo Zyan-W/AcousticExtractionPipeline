@@ -122,6 +122,38 @@ function Set-TemporaryEnvVar {
     }
 }
 
+function Get-EnvPackageRecords {
+    param([string]$PackageName)
+    $json = & $EnvTool list -n $EnvName $PackageName --json
+    if ($LASTEXITCODE -ne 0) {
+        throw "Could not inspect package in ${EnvName}: $PackageName"
+    }
+    return $json | ConvertFrom-Json
+}
+
+function Test-FFmpegRedistributionBuild {
+    $records = @(Get-EnvPackageRecords -PackageName "ffmpeg")
+    $ffmpeg = $records | Where-Object { $_.name -eq "ffmpeg" } | Select-Object -First 1
+    if (-not $ffmpeg) {
+        throw "ffmpeg is missing from the ${EnvName} environment."
+    }
+
+    $buildString = [string]$ffmpeg.build_string
+    if (-not $buildString) {
+        $buildString = [string]$ffmpeg.build
+    }
+    $buildLower = $buildString.ToLowerInvariant()
+
+    if ($buildLower -match "gpl") {
+        throw "Refusing to build an offline redistributable bundle with GPL-enabled FFmpeg build: $($ffmpeg.version) $buildString"
+    }
+    if ($buildLower -notmatch "lgpl") {
+        throw "FFmpeg build string does not clearly identify an LGPL build: $($ffmpeg.version) $buildString"
+    }
+
+    Write-Host "FFmpeg redistribution check passed: $($ffmpeg.version) $buildString"
+}
+
 Write-Step "Preparing output folders"
 New-Item -ItemType Directory -Force -Path $OutputRootPath | Out-Null
 if (Test-Path -LiteralPath $BundleRoot) {
@@ -150,6 +182,7 @@ if (-not $SkipEnvironmentUpdate) {
 Write-Step "Verifying runtime dependencies"
 Invoke-EnvTool -Arguments @("run", "-n", $EnvName, "python", "-c", $RuntimeCheckCode)
 Invoke-EnvTool -Arguments @("run", "-n", $EnvName, "mfa", "version")
+Test-FFmpegRedistributionBuild
 
 Write-Step "Downloading bundled Whisper small model"
 Set-TemporaryEnvVar -Name "AUTO_MFA_WHISPER_MODEL_DIR" -Value $WhisperModelDir -Body {
@@ -175,7 +208,7 @@ Write-Step "Installing conda-pack into base environment"
 Invoke-EnvTool -Arguments @("install", "-n", "base", "-c", "conda-forge", "conda-pack", "-y")
 
 Write-Step "Packing Windows environment"
-Invoke-EnvTool -Arguments @("run", "-n", "base", "conda-pack", "-n", $EnvName, "--format", "zip", "--force", "-o", $EnvArchive)
+Invoke-EnvTool -Arguments @("run", "-n", "base", "conda-pack", "-n", $EnvName, "--format", "zip", "--force", "--ignore-missing-files", "-o", $EnvArchive)
 
 Write-Step "Copying Auto-MFA source and offline docs"
 Copy-BundleSourceFiles

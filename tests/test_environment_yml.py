@@ -13,6 +13,7 @@ class EnvironmentYmlTest(unittest.TestCase):
 
         self.assertIn("python=3.11", environment_yml)
         self.assertIn("numpy<2", environment_yml)
+        self.assertIn("ffmpeg=*=*lgpl*", environment_yml)
         self.assertIn("spacy", environment_yml)
         self.assertIn("sudachipy", environment_yml)
         self.assertIn("sudachidict-core", environment_yml)

@@ -23,7 +23,7 @@ material unless that redistribution has been explicitly approved.
 | SudachiPy | Japanese morphological analyzer | Apache-2.0 |
 | SudachiDict Core | Japanese dictionary data | Apache-2.0 |
 | OpenAI Whisper / `openai-whisper` | ASR transcription CLI | MIT |
-| FFmpeg | Audio decoding for Whisper | LGPL v2.1+ by default; GPL v2+ if built with GPL components |
+| FFmpeg | Audio decoding for Whisper | LGPL v2.1+ build required; release tooling refuses GPL-enabled builds |
 | Montreal Forced Aligner | Forced alignment CLI | MIT |
 
 ## Bundled Model Assets

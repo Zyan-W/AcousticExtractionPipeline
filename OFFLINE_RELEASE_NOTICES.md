@@ -20,9 +20,14 @@ redistribution has been explicitly approved.
 | pip | Package/runtime support inside the environment | MIT |
 | NumPy | Whisper/PyTorch runtime bridge | BSD-3-Clause |
 | PyTorch | Whisper backend | BSD-style |
-| spaCy | Japanese tokenizer support used by MFA | MIT |
+| spaCy | Japanese and Chinese tokenizer support used by MFA | MIT |
 | SudachiPy | Japanese morphological analyzer | Apache-2.0 |
 | SudachiDict Core | Japanese dictionary data | Apache-2.0 |
+| python-mecab-ko | Korean morphological analyzer used by MFA Korean presets | BSD-3-Clause |
+| jamo | Korean Hangul/Jamo conversion used by MFA Korean presets | Apache-2.0 |
+| spaCy pkuseg | Chinese tokenizer support used by MFA Mandarin presets | MIT |
+| Dragonmapper | Chinese character/pronunciation conversion used by MFA | MIT |
+| hanziconv | Simplified/traditional Chinese conversion used by MFA | Apache-2.0 |
 | OpenAI Whisper / `openai-whisper` | ASR transcription CLI | MIT |
 | FFmpeg | Audio decoding for Whisper | LGPL v2.1+ build required; release tooling refuses GPL-enabled builds |
 | Montreal Forced Aligner | Forced alignment CLI | MIT |

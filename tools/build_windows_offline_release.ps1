@@ -27,7 +27,7 @@ $LicenseManifest = Join-Path $BundleRoot "licenses\third_party_licenses_manifest
 $EnvArchive = Join-Path $PayloadDir "auto-mfa-env-windows-x86_64.zip"
 $BundleZip = Join-Path $OutputRootPath "$BundleName.zip"
 $ReleaseAssetLimitBytes = [int64]2 * 1024 * 1024 * 1024
-$RuntimeCheckCode = "import numpy as np; import torch; torch.from_numpy(np.zeros(1, dtype=np.float32)); import montreal_forced_aligner; import spacy; import sudachipy; import sudachidict_core; print('runtime ok')"
+$RuntimeCheckCode = "import numpy as np; import torch; torch.from_numpy(np.zeros(1, dtype=np.float32)); import montreal_forced_aligner; import spacy; import sudachipy; import sudachidict_core; import jamo; from mecab import MeCab; import spacy_pkuseg; import dragonmapper; import hanziconv; print('runtime ok')"
 
 function Write-Step {
     param([string]$Message)

@@ -120,8 +120,8 @@ The environment guide opens first:
 3. After the isolated environment is ready, click `Launch Tool`.
 
 The environment check verifies `whisper`, `ffmpeg`, `mfa`, the NumPy/PyTorch
-runtime used by Whisper, and the Japanese tokenizer packages MFA needs for
-Japanese text normalization.
+runtime used by Whisper, and the Japanese/Korean/Chinese tokenizer packages
+MFA needs for Japanese, Korean, and Mandarin Chinese text normalization.
 
 `Launch Tool` starts the main app with:
 
@@ -167,8 +167,8 @@ python -m auto_mfa_tool --app
 
 Choose an audio folder and an output folder, then click `Run`.
 You can click `Check Environment` first to verify the active Python,
-`whisper`, `ffmpeg`, `mfa`, the NumPy/PyTorch bridge, and Japanese tokenizer
-support before starting a long Whisper/MFA job.
+`whisper`, `ffmpeg`, `mfa`, the NumPy/PyTorch bridge, and Japanese/Korean/Chinese
+tokenizer support before starting a long Whisper/MFA job.
 
 Supported audio extensions are `.wav`, `.mp3`, `.m4a`, and `.flac`.
 
@@ -221,6 +221,16 @@ mamba env update -n auto-mfa -f environment.yml --prune
 The double-click startup scripts also run this repair path automatically when
 their runtime check detects that these tokenizer packages are missing.
 
+If MFA reports `Please install Korean support via pip install python-mecab-ko
+jamo`, use the same environment update command. These packages are part of
+`environment.yml` because the Korean MFA preset needs them for text
+normalization.
+
+If MFA reports `Please install Chinese tokenization support via pip install
+spacy-pkuseg dragonmapper hanziconv`, use the same environment update command.
+These packages are part of `environment.yml` because the Mandarin Chinese MFA
+preset needs them for text normalization.
+
 ## macOS Notes
 
 The tool is not Windows-only. It uses Python standard-library GUI code
@@ -256,9 +266,14 @@ release bundles these tools inside a generated conda-pack environment; see
 | pip | Installs `openai-whisper` inside the isolated environment | Installed by `environment.yml`; package version resolved by conda-forge | [MIT License](https://github.com/pypa/pip) |
 | NumPy | Whisper/PyTorch runtime compatibility check and array bridge | `numpy<2` from `environment.yml`; not bundled | [BSD-3-Clause](https://numpy.org/doc/stable/license.html) |
 | PyTorch | Whisper runtime backend and NumPy bridge check | Installed as an `openai-whisper` dependency; not bundled | [BSD-style](https://github.com/pytorch/pytorch/blob/main/LICENSE) |
-| spaCy | Japanese tokenizer support required by MFA text normalization | Installed by `environment.yml`; not pinned or bundled | [MIT License](https://github.com/explosion/spaCy) |
+| spaCy | Japanese and Chinese tokenizer support required by MFA text normalization | Installed by `environment.yml`; not pinned or bundled | [MIT License](https://github.com/explosion/spaCy) |
 | SudachiPy | Japanese morphological analyzer used by MFA/spaCy Japanese support | Installed by `environment.yml`; not pinned or bundled | [Apache-2.0](https://anaconda.org/channels/conda-forge/packages/sudachipy/overview) |
 | SudachiDict Core | Core Japanese dictionary data for SudachiPy | Installed by `environment.yml`; not pinned or bundled | [Apache-2.0](https://pypi.org/project/SudachiDict-core/) |
+| python-mecab-ko | Korean morphological analyzer used by MFA Korean support | Installed by `environment.yml`; not pinned or bundled | [BSD-3-Clause](https://pypi.org/project/python-mecab-ko/) |
+| jamo | Korean Hangul/Jamo conversion used by MFA Korean support | Installed by `environment.yml`; not pinned or bundled | [Apache-2.0](https://pypi.org/project/jamo/) |
+| spaCy pkuseg | Chinese tokenizer support required by MFA Mandarin text normalization | Installed by `environment.yml`; not pinned or bundled | [MIT License](https://pypi.org/project/spacy-pkuseg/) |
+| Dragonmapper | Chinese character and pronunciation conversion used by MFA Mandarin text normalization | Installed by `environment.yml`; not pinned or bundled | [MIT License](https://pypi.org/project/dragonmapper/) |
+| hanziconv | Simplified/traditional Chinese conversion used by MFA Mandarin text normalization | Installed by `environment.yml`; not pinned or bundled | [Apache-2.0](https://pypi.org/project/hanziconv/) |
 | OpenAI Whisper / `openai-whisper` | ASR transcription CLI | Installed by `environment.yml`; not pinned or bundled | [MIT License](https://github.com/openai/whisper/blob/main/LICENSE) |
 | FFmpeg | Audio decoding support used by Whisper | Installed by `environment.yml` with an LGPL build-string constraint; not bundled in the source checkout | [LGPL v2.1+ by default](https://www.ffmpeg.org/legal.html); GPL v2+ if built with GPL components |
 | Montreal Forced Aligner | Forced alignment CLI | Installed by `environment.yml`; not pinned or bundled | [MIT License](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) |

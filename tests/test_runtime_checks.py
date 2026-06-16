@@ -5,7 +5,9 @@ import sys
 import unittest
 
 from auto_mfa_tool.runtime_checks import (
+    CHINESE_TOKENIZER_CHECK_CODE,
     JAPANESE_TOKENIZER_CHECK_CODE,
+    KOREAN_TOKENIZER_CHECK_CODE,
     PYTHON_RUNTIME_CHECK_CODE,
     check_current_environment,
     environment_is_ready,
@@ -23,6 +25,10 @@ class RuntimeChecksTest(unittest.TestCase):
                     (sys.executable, "-c", JAPANESE_TOKENIZER_CHECK_CODE): completed(
                         "spacy/sudachipy/sudachidict-core available"
                     ),
+                    (sys.executable, "-c", KOREAN_TOKENIZER_CHECK_CODE): completed("python-mecab-ko/jamo available"),
+                    (sys.executable, "-c", CHINESE_TOKENIZER_CHECK_CODE): completed(
+                        "spacy-pkuseg/dragonmapper/hanziconv available"
+                    ),
                 }
             ),
         )
@@ -30,6 +36,8 @@ class RuntimeChecksTest(unittest.TestCase):
         self.assertTrue(environment_is_ready(checks))
         self.assertIn("[OK] numpy/torch", "\n".join(format_environment_report(checks)))
         self.assertIn("[OK] japanese-tokenizer", "\n".join(format_environment_report(checks)))
+        self.assertIn("[OK] korean-tokenizer", "\n".join(format_environment_report(checks)))
+        self.assertIn("[OK] chinese-tokenizer", "\n".join(format_environment_report(checks)))
 
     def test_missing_command_is_reported_with_fix_hint(self):
         checks = check_current_environment(
@@ -39,6 +47,10 @@ class RuntimeChecksTest(unittest.TestCase):
                     (sys.executable, "-c", PYTHON_RUNTIME_CHECK_CODE): completed("numpy=1.26; torch=2.2"),
                     (sys.executable, "-c", JAPANESE_TOKENIZER_CHECK_CODE): completed(
                         "spacy/sudachipy/sudachidict-core available"
+                    ),
+                    (sys.executable, "-c", KOREAN_TOKENIZER_CHECK_CODE): completed("python-mecab-ko/jamo available"),
+                    (sys.executable, "-c", CHINESE_TOKENIZER_CHECK_CODE): completed(
+                        "spacy-pkuseg/dragonmapper/hanziconv available"
                     ),
                 }
             ),
@@ -60,6 +72,10 @@ class RuntimeChecksTest(unittest.TestCase):
                     (sys.executable, "-c", JAPANESE_TOKENIZER_CHECK_CODE): completed(
                         "spacy/sudachipy/sudachidict-core available"
                     ),
+                    (sys.executable, "-c", KOREAN_TOKENIZER_CHECK_CODE): completed("python-mecab-ko/jamo available"),
+                    (sys.executable, "-c", CHINESE_TOKENIZER_CHECK_CODE): completed(
+                        "spacy-pkuseg/dragonmapper/hanziconv available"
+                    ),
                 }
             ),
         )
@@ -78,6 +94,10 @@ class RuntimeChecksTest(unittest.TestCase):
                     (sys.executable, "-c", JAPANESE_TOKENIZER_CHECK_CODE): subprocess.CompletedProcess(
                         [sys.executable], 1, stdout="ModuleNotFoundError: No module named 'sudachipy'"
                     ),
+                    (sys.executable, "-c", KOREAN_TOKENIZER_CHECK_CODE): completed("python-mecab-ko/jamo available"),
+                    (sys.executable, "-c", CHINESE_TOKENIZER_CHECK_CODE): completed(
+                        "spacy-pkuseg/dragonmapper/hanziconv available"
+                    ),
                 }
             ),
         )
@@ -86,6 +106,52 @@ class RuntimeChecksTest(unittest.TestCase):
         self.assertFalse(environment_is_ready(checks))
         self.assertIn("[ERROR] japanese-tokenizer: ModuleNotFoundError", report)
         self.assertIn("spacy sudachipy sudachidict-core", report)
+
+    def test_korean_tokenizer_failure_is_reported(self):
+        checks = check_current_environment(
+            which=lambda name: f"/env/bin/{name}",
+            run=fake_runner(
+                {
+                    (sys.executable, "-c", PYTHON_RUNTIME_CHECK_CODE): completed("numpy=1.26; torch=2.2"),
+                    (sys.executable, "-c", JAPANESE_TOKENIZER_CHECK_CODE): completed(
+                        "spacy/sudachipy/sudachidict-core available"
+                    ),
+                    (sys.executable, "-c", KOREAN_TOKENIZER_CHECK_CODE): subprocess.CompletedProcess(
+                        [sys.executable], 1, stdout="ModuleNotFoundError: No module named 'mecab'"
+                    ),
+                    (sys.executable, "-c", CHINESE_TOKENIZER_CHECK_CODE): completed(
+                        "spacy-pkuseg/dragonmapper/hanziconv available"
+                    ),
+                }
+            ),
+        )
+        report = "\n".join(format_environment_report(checks))
+
+        self.assertFalse(environment_is_ready(checks))
+        self.assertIn("[ERROR] korean-tokenizer: ModuleNotFoundError", report)
+        self.assertIn("python-mecab-ko jamo", report)
+
+    def test_chinese_tokenizer_failure_is_reported(self):
+        checks = check_current_environment(
+            which=lambda name: f"/env/bin/{name}",
+            run=fake_runner(
+                {
+                    (sys.executable, "-c", PYTHON_RUNTIME_CHECK_CODE): completed("numpy=1.26; torch=2.2"),
+                    (sys.executable, "-c", JAPANESE_TOKENIZER_CHECK_CODE): completed(
+                        "spacy/sudachipy/sudachidict-core available"
+                    ),
+                    (sys.executable, "-c", KOREAN_TOKENIZER_CHECK_CODE): completed("python-mecab-ko/jamo available"),
+                    (sys.executable, "-c", CHINESE_TOKENIZER_CHECK_CODE): subprocess.CompletedProcess(
+                        [sys.executable], 1, stdout="ModuleNotFoundError: No module named 'spacy_pkuseg'"
+                    ),
+                }
+            ),
+        )
+        report = "\n".join(format_environment_report(checks))
+
+        self.assertFalse(environment_is_ready(checks))
+        self.assertIn("[ERROR] chinese-tokenizer: ModuleNotFoundError", report)
+        self.assertIn("spacy-pkuseg dragonmapper hanziconv", report)
 
 
 def fake_runner(responses):

@@ -97,7 +97,7 @@ function Test-OfflineRuntime {
         throw "Missing bundled Whisper small model: $smallModel"
     }
 
-    $runtimeCheck = "import numpy as np; import torch; torch.from_numpy(np.zeros(1, dtype=np.float32)); import montreal_forced_aligner; import spacy; import sudachipy; import sudachidict_core; print('runtime ok')"
+    $runtimeCheck = "import numpy as np; import torch; torch.from_numpy(np.zeros(1, dtype=np.float32)); import montreal_forced_aligner; import spacy; import sudachipy; import sudachidict_core; import jamo; from mecab import MeCab; import spacy_pkuseg; import dragonmapper; import hanziconv; print('runtime ok')"
     Invoke-Native -FilePath $PythonExe -Arguments @("-c", $runtimeCheck)
 
     $offlineCheck = "from auto_mfa_tool.offline import offline_mode_enabled, whisper_model_dir; import pathlib; assert offline_mode_enabled(); assert pathlib.Path(whisper_model_dir()).joinpath('small.pt').exists(); print('offline config ok')"

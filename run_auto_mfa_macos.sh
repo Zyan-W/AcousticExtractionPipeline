@@ -17,7 +17,7 @@ MODEL_DOWNLOADS=(
   "acoustic mandarin_mfa"
   "dictionary mandarin_china_mfa"
 )
-RUNTIME_CHECK_CODE="import numpy as np; import torch; torch.from_numpy(np.zeros(1, dtype=np.float32)); import montreal_forced_aligner; import spacy; import sudachipy; import sudachidict_core; print('runtime ok')"
+RUNTIME_CHECK_CODE="import numpy as np; import torch; torch.from_numpy(np.zeros(1, dtype=np.float32)); import montreal_forced_aligner; import spacy; import sudachipy; import sudachidict_core; import jamo; from mecab import MeCab; import spacy_pkuseg; import dragonmapper; import hanziconv; print('runtime ok')"
 
 step() {
   printf "\n==> %s\n" "$1"

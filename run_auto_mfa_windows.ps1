@@ -5,7 +5,7 @@ $ErrorActionPreference = "Stop"
 $ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $EnvName = "auto-mfa"
 $EnvFile = Join-Path $ProjectRoot "environment.yml"
-$RuntimeCheckCode = "import numpy as np; import torch; torch.from_numpy(np.zeros(1, dtype=np.float32)); import montreal_forced_aligner; import spacy; import sudachipy; import sudachidict_core; print('runtime ok')"
+$RuntimeCheckCode = "import numpy as np; import torch; torch.from_numpy(np.zeros(1, dtype=np.float32)); import montreal_forced_aligner; import spacy; import sudachipy; import sudachidict_core; import jamo; from mecab import MeCab; import spacy_pkuseg; import dragonmapper; import hanziconv; print('runtime ok')"
 $ModelDownloads = @(
     @("acoustic", "japanese_mfa"),
     @("dictionary", "japanese_mfa"),

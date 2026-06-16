@@ -40,8 +40,8 @@ powershell -ExecutionPolicy Bypass -File .\run_auto_mfa_windows_offline.ps1 -Smo
 ```
 
 This unpacks the environment if needed and checks Python, Whisper, FFmpeg, MFA,
-NumPy/PyTorch, Japanese tokenizer support, the bundled Whisper model, and the
-bundled MFA model directory.
+NumPy/PyTorch, Japanese/Korean/Chinese tokenizer support, the bundled Whisper
+model, and the bundled MFA model directory.
 
 ## Verify Files
 

@@ -21,6 +21,17 @@ JAPANESE_TOKENIZER_CHECK_CODE = (
     "import sudachidict_core; "
     "print('spacy/sudachipy/sudachidict-core available')"
 )
+KOREAN_TOKENIZER_CHECK_CODE = (
+    "import jamo; "
+    "from mecab import MeCab; "
+    "print('python-mecab-ko/jamo available')"
+)
+CHINESE_TOKENIZER_CHECK_CODE = (
+    "import spacy_pkuseg; "
+    "import dragonmapper; "
+    "import hanziconv; "
+    "print('spacy-pkuseg/dragonmapper/hanziconv available')"
+)
 
 CommandRunner = Callable[[Sequence[str]], subprocess.CompletedProcess[str]]
 
@@ -47,6 +58,8 @@ def check_current_environment(
         _check_command("mfa", which),
         _check_numpy_torch(run, python_executable),
         _check_japanese_tokenizer(run, python_executable),
+        _check_korean_tokenizer(run, python_executable),
+        _check_chinese_tokenizer(run, python_executable),
     )
 
 
@@ -99,6 +112,32 @@ def _check_japanese_tokenizer(run: CommandRunner, python_executable: str) -> Run
         False,
         output or "runtime check failed",
         "Run `mamba env update -n auto-mfa -f environment.yml` or install spacy sudachipy sudachidict-core.",
+    )
+
+
+def _check_korean_tokenizer(run: CommandRunner, python_executable: str) -> RuntimeCheck:
+    result = run([python_executable, "-c", KOREAN_TOKENIZER_CHECK_CODE])
+    output = " ".join(result.stdout.split())[:240]
+    if result.returncode == 0:
+        return RuntimeCheck("korean-tokenizer", True, output or "available")
+    return RuntimeCheck(
+        "korean-tokenizer",
+        False,
+        output or "runtime check failed",
+        "Run `mamba env update -n auto-mfa -f environment.yml` or install python-mecab-ko jamo.",
+    )
+
+
+def _check_chinese_tokenizer(run: CommandRunner, python_executable: str) -> RuntimeCheck:
+    result = run([python_executable, "-c", CHINESE_TOKENIZER_CHECK_CODE])
+    output = " ".join(result.stdout.split())[:240]
+    if result.returncode == 0:
+        return RuntimeCheck("chinese-tokenizer", True, output or "available")
+    return RuntimeCheck(
+        "chinese-tokenizer",
+        False,
+        output or "runtime check failed",
+        "Run `mamba env update -n auto-mfa -f environment.yml` or install spacy-pkuseg dragonmapper hanziconv.",
     )
 
 

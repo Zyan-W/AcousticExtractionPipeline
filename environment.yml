@@ -12,3 +12,8 @@ dependencies:
   - pip
   - pip:
       - openai-whisper
+      - python-mecab-ko
+      - jamo
+      - spacy-pkuseg
+      - dragonmapper
+      - hanziconv

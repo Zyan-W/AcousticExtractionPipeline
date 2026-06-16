@@ -18,6 +18,11 @@ class EnvironmentYmlTest(unittest.TestCase):
         self.assertIn("sudachipy", environment_yml)
         self.assertIn("sudachidict-core", environment_yml)
         self.assertIn("openai-whisper", environment_yml)
+        self.assertIn("python-mecab-ko", environment_yml)
+        self.assertIn("jamo", environment_yml)
+        self.assertIn("spacy-pkuseg", environment_yml)
+        self.assertIn("dragonmapper", environment_yml)
+        self.assertIn("hanziconv", environment_yml)
 
 
 if __name__ == "__main__":

@@ -52,8 +52,14 @@ are not imported by the local desktop GUI.
 The Windows offline release is a generated distribution, not committed source.
 It may redistribute a packed conda environment, Whisper `small` model weights,
 and MFA pretrained acoustic/dictionary model assets. Review
-`OFFLINE_RELEASE_NOTICES.md`, the generated `offline_manifest.json`, conda
-package metadata, and `SHA256SUMS.txt` before publishing an offline bundle.
+`OFFLINE_RELEASE_NOTICES.md`, the generated `offline_manifest.json`,
+`licenses/third_party_licenses_manifest.json`, conda package metadata, and
+`SHA256SUMS.txt` before publishing an offline bundle.
+
+The offline build script generates a `licenses/` directory inside the bundle.
+It copies available license, notice, and package metadata files from the
+packed conda environment and writes `licenses/THIRD_PARTY_LICENSES.md` as a
+reader-facing summary.
 
 Do not publish a Windows offline bundle that includes GPL-enabled FFmpeg or any
 GPL, AGPL, SSPL, BUSL, unclear-license, private, or machine-local material

@@ -11,6 +11,8 @@ MFA pretrained models during setup.
 - Whisper `small` model weights in `models/whisper/`.
 - Official MFA acoustic and dictionary presets used by the GUI in `models/mfa/`.
 - `offline_manifest.json`, `SHA256SUMS.txt`, and release notices.
+- `licenses/`, including copied package license files and a generated
+  `third_party_licenses_manifest.json` for the bundled environment.
 
 ## First Run
 
@@ -54,3 +56,6 @@ zip also has a sibling `.sha256` file when built by the project release script.
   before sharing it.
 - See `OFFLINE_RELEASE_NOTICES.md` and `THIRD_PARTY_NOTICES.md` before
   redistributing the bundle.
+- Preserve the `licenses/` folder when copying the bundle to USB or external
+  drives; it contains the generated third-party license evidence for the
+  bundled conda environment.

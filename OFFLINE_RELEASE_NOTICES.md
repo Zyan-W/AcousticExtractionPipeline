@@ -6,9 +6,10 @@ model data so that the tool can run without internet access on the target
 machine.
 
 Before publishing an offline bundle, review the generated environment contents,
-the conda package metadata, and the bundled model files. Do not publish a bundle
-that includes GPL, AGPL, SSPL, BUSL, unclear-license, private, or device-local
-material unless that redistribution has been explicitly approved.
+the conda package metadata, the generated `licenses/` directory, and the
+bundled model files. Do not publish a bundle that includes GPL, AGPL, SSPL,
+BUSL, unclear-license, private, or device-local material unless that
+redistribution has been explicitly approved.
 
 ## Bundled Runtime Components
 
@@ -39,4 +40,7 @@ material unless that redistribution has been explicitly approved.
 The generated bundle must not include private audio recordings, generated
 TextGrids, Whisper output, local user paths, access tokens, local shell history,
 or machine-specific secrets. Check `offline_manifest.json`, `SHA256SUMS.txt`,
-and the staged Git diff before uploading the first offline release.
+`licenses/third_party_licenses_manifest.json`, and the staged Git diff before
+uploading the first offline release. Preserve `licenses/` when sharing the
+offline bundle because it contains copied package license files and package
+metadata for the bundled conda environment.

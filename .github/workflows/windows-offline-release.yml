@@ -56,6 +56,8 @@ jobs:
             dist/offline/Auto-MFA-windows-x86_64-offline.zip.sha256
             dist/offline/Auto-MFA-windows-x86_64-offline/offline_manifest.json
             dist/offline/Auto-MFA-windows-x86_64-offline/SHA256SUMS.txt
+            dist/offline/Auto-MFA-windows-x86_64-offline/licenses/THIRD_PARTY_LICENSES.md
+            dist/offline/Auto-MFA-windows-x86_64-offline/licenses/third_party_licenses_manifest.json
           if-no-files-found: error
 
       - name: Upload release assets

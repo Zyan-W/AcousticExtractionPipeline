@@ -22,6 +22,8 @@ $PayloadDir = Join-Path $BundleRoot "payload"
 $ModelsDir = Join-Path $BundleRoot "models"
 $WhisperModelDir = Join-Path $ModelsDir "whisper"
 $MfaRootDir = Join-Path $ModelsDir "mfa"
+$LicenseSummary = Join-Path $BundleRoot "licenses\THIRD_PARTY_LICENSES.md"
+$LicenseManifest = Join-Path $BundleRoot "licenses\third_party_licenses_manifest.json"
 $EnvArchive = Join-Path $PayloadDir "auto-mfa-env-windows-x86_64.zip"
 $BundleZip = Join-Path $OutputRootPath "$BundleName.zip"
 $ReleaseAssetLimitBytes = [int64]2 * 1024 * 1024 * 1024
@@ -212,6 +214,18 @@ Invoke-EnvTool -Arguments @("run", "-n", "base", "conda-pack", "-n", $EnvName, "
 
 Write-Step "Copying Auto-MFA source and offline docs"
 Copy-BundleSourceFiles
+
+Write-Step "Collecting third-party license files"
+Invoke-EnvTool -Arguments @(
+    "run", "-n", $EnvName, "python", (Join-Path $ProjectRoot "tools\offline_license_bundle.py"),
+    "--bundle-root", $BundleRoot
+)
+if (-not (Test-Path -LiteralPath $LicenseSummary)) {
+    throw "Missing generated third-party license summary: $LicenseSummary"
+}
+if (-not (Test-Path -LiteralPath $LicenseManifest)) {
+    throw "Missing generated third-party license manifest: $LicenseManifest"
+}
 
 Write-Step "Writing offline manifest and checksums"
 Invoke-EnvTool -Arguments @(
